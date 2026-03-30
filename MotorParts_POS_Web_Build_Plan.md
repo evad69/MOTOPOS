@@ -66,7 +66,7 @@ Phase 3  — Theme & Design System            [x] 4/4 steps complete
 Phase 4  — Layout Shell & Navigation        [x] 3/3 steps complete
 Phase 5  — Inventory Management             [x] 5/5 steps complete
 Phase 6  — New Sale & Checkout              [x] 5/5 steps complete
-Phase 7  — Dashboard                        [ ] 3/4 steps complete
+Phase 7  — Dashboard                        [x] 4/4 steps complete
 Phase 8  — Sale History                     [ ] 0/3 steps complete
 Phase 9  — Supabase Cloud Sync              [ ] 0/4 steps complete
 Phase 10 — AI Assistant                     [ ] 0/5 steps complete
@@ -1413,13 +1413,13 @@ git commit -m "feat(dashboard): implement recent sales table with clickable rows
 
 ### Step 7.4 — Verify Dashboard end-to-end
 
-- [ ] **Task:** Confirm all dashboard data is live and accurate.
+- [x] **Task:** Confirm all dashboard data is live and accurate.
 
 Checklist:
-- [ ] Complete a new sale → Today's Revenue and Transaction Count update immediately on Dashboard
-- [ ] Set a product stock to 2 → Low Stock Count badge increments, banner appears
-- [ ] Top item reflects the product with the most sales in the last 30 days
-- [ ] Clicking a recent sale row navigates to the correct sale detail page
+- [x] Complete a new sale → Today's Revenue and Transaction Count update immediately on Dashboard
+- [x] Set a product stock to 2 → Low Stock Count badge increments, banner appears
+- [x] Top item reflects the product with the most sales in the last 30 days
+- [x] Clicking a recent sale row navigates to the correct sale detail page
 
 > **Commit:**
 ```bash
