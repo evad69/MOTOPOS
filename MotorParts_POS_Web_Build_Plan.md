@@ -62,7 +62,7 @@ Types: `feat`, `chore`, `test`, `style`, `perf`, `a11y`, `milestone`
 ```
 Phase 1  — Project Setup & Foundation       [x] 6/6 steps complete
 Phase 2  — Database Layer (IndexedDB/Dexie) [x] 5/5 steps complete
-Phase 3  — Theme & Design System            [ ] 1/4 steps complete
+Phase 3  — Theme & Design System            [ ] 2/4 steps complete
 Phase 4  — Layout Shell & Navigation        [ ] 0/3 steps complete
 Phase 5  — Inventory Management             [ ] 0/5 steps complete
 Phase 6  — New Sale & Checkout              [ ] 0/5 steps complete
@@ -871,7 +871,7 @@ git commit -m "feat(theme): add CSS variable color tokens for light and dark mod
 
 ### Step 3.2 — Implement typography and spacing constants
 
-- [ ] **Task:** Define all font size, weight, and spacing constants as TypeScript exports.
+- [x] **Task:** Define all font size, weight, and spacing constants as TypeScript exports.
 
 **`src/theme/typography.ts`**
 ```ts
