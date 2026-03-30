@@ -64,7 +64,7 @@ Phase 1  — Project Setup & Foundation       [x] 6/6 steps complete
 Phase 2  — Database Layer (IndexedDB/Dexie) [x] 5/5 steps complete
 Phase 3  — Theme & Design System            [x] 4/4 steps complete
 Phase 4  — Layout Shell & Navigation        [x] 3/3 steps complete
-Phase 5  — Inventory Management             [ ] 2/5 steps complete
+Phase 5  — Inventory Management             [ ] 3/5 steps complete
 Phase 6  — New Sale & Checkout              [ ] 0/5 steps complete
 Phase 7  — Dashboard                        [ ] 0/4 steps complete
 Phase 8  — Sale History                     [ ] 0/3 steps complete
@@ -1182,7 +1182,7 @@ git commit -m "feat(inventory): implement Add Product page with validation"
 
 ### Step 5.3 — Build the Edit Product page
 
-- [ ] **Task:** Form for editing or deleting an existing product.
+- [x] **Task:** Form for editing or deleting an existing product.
 
 `src/app/inventory/[id]/page.tsx` must implement:
 - Pre-populate all fields by calling `getProductById(params.id)` on load
