@@ -60,7 +60,7 @@ Types: `feat`, `chore`, `test`, `style`, `perf`, `a11y`, `milestone`
 ## Progress Tracker
 
 ```
-Phase 1  — Project Setup & Foundation       [ ] 5/6 steps complete
+Phase 1  — Project Setup & Foundation       [x] 6/6 steps complete
 Phase 2  — Database Layer (IndexedDB/Dexie) [ ] 0/5 steps complete
 Phase 3  — Theme & Design System            [ ] 0/4 steps complete
 Phase 4  — Layout Shell & Navigation        [ ] 0/3 steps complete
@@ -345,7 +345,7 @@ git commit -m "feat(utils): add currency, date, UUID, and input validation helpe
 
 ### Step 1.6 — Verify the project builds cleanly
 
-- [ ] **Task:** Confirm the app starts and builds without TypeScript errors before writing any feature code.
+- [x] **Task:** Confirm the app starts and builds without TypeScript errors before writing any feature code.
 
 Update `src/app/page.tsx` with a visible placeholder that does a client-side redirect:
 
