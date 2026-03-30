@@ -65,7 +65,7 @@ Phase 2  — Database Layer (IndexedDB/Dexie) [x] 5/5 steps complete
 Phase 3  — Theme & Design System            [x] 4/4 steps complete
 Phase 4  — Layout Shell & Navigation        [x] 3/3 steps complete
 Phase 5  — Inventory Management             [x] 5/5 steps complete
-Phase 6  — New Sale & Checkout              [ ] 0/5 steps complete
+Phase 6  — New Sale & Checkout              [ ] 1/5 steps complete
 Phase 7  — Dashboard                        [ ] 0/4 steps complete
 Phase 8  — Sale History                     [ ] 0/3 steps complete
 Phase 9  — Supabase Cloud Sync              [ ] 0/4 steps complete
@@ -1245,7 +1245,7 @@ git commit --allow-empty -m "milestone(phase-5): inventory management fully impl
 
 ### Step 6.1 — Build the product browser on the New Sale page
 
-- [ ] **Task:** Left/top section of the New Sale page — browse and add products.
+- [x] **Task:** Left/top section of the New Sale page — browse and add products.
 
 `src/app/sale/new/page.tsx` left panel:
 - Search bar + barcode scan button (stub for Phase 11)
