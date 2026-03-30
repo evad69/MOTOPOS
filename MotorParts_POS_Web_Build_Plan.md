@@ -64,7 +64,7 @@ Phase 1  — Project Setup & Foundation       [x] 6/6 steps complete
 Phase 2  — Database Layer (IndexedDB/Dexie) [x] 5/5 steps complete
 Phase 3  — Theme & Design System            [x] 4/4 steps complete
 Phase 4  — Layout Shell & Navigation        [x] 3/3 steps complete
-Phase 5  — Inventory Management             [ ] 4/5 steps complete
+Phase 5  — Inventory Management             [x] 5/5 steps complete
 Phase 6  — New Sale & Checkout              [ ] 0/5 steps complete
 Phase 7  — Dashboard                        [ ] 0/4 steps complete
 Phase 8  — Sale History                     [ ] 0/3 steps complete
@@ -1215,14 +1215,14 @@ git commit -m "feat(inventory): add category section grouping"
 
 ### Step 5.5 — End-to-end inventory verification
 
-- [ ] **Task:** Manual test of the full CRUD flow.
+- [x] **Task:** Manual test of the full CRUD flow.
 
 Checklist:
-- [ ] Add a new product — appears in All Items
-- [ ] Edit the product — changes reflected after returning to list
-- [ ] Set stock to 3 — badge turns red, item appears in Low Stock tab
-- [ ] Delete — disappears from list
-- [ ] Search by name, brand, and SKU — correct results
+- [x] Add a new product — appears in All Items
+- [x] Edit the product — changes reflected after returning to list
+- [x] Set stock to 3 — badge turns red, item appears in Low Stock tab
+- [x] Delete — disappears from list
+- [x] Search by name, brand, and SKU — correct results
 
 > **Commit:**
 ```bash
