@@ -66,7 +66,7 @@ Phase 3  — Theme & Design System            [x] 4/4 steps complete
 Phase 4  — Layout Shell & Navigation        [x] 3/3 steps complete
 Phase 5  — Inventory Management             [x] 5/5 steps complete
 Phase 6  — New Sale & Checkout              [x] 5/5 steps complete
-Phase 7  — Dashboard                        [ ] 2/4 steps complete
+Phase 7  — Dashboard                        [ ] 3/4 steps complete
 Phase 8  — Sale History                     [ ] 0/3 steps complete
 Phase 9  — Supabase Cloud Sync              [ ] 0/4 steps complete
 Phase 10 — AI Assistant                     [ ] 0/5 steps complete
@@ -1397,7 +1397,7 @@ git commit -m "feat(dashboard): add low stock alert banner with link to inventor
 
 ### Step 7.3 — Build the recent sales table
 
-- [ ] **Task:** Last 10 transactions in a table below the metric cards.
+- [x] **Task:** Last 10 transactions in a table below the metric cards.
 
 - Calls `getRecentSales(10)` on page load
 - Table columns: Date/time, items summary, amount, payment method
