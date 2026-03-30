@@ -61,7 +61,7 @@ Types: `feat`, `chore`, `test`, `style`, `perf`, `a11y`, `milestone`
 
 ```
 Phase 1  — Project Setup & Foundation       [x] 6/6 steps complete
-Phase 2  — Database Layer (IndexedDB/Dexie) [ ] 2/5 steps complete
+Phase 2  — Database Layer (IndexedDB/Dexie) [ ] 3/5 steps complete
 Phase 3  — Theme & Design System            [ ] 0/4 steps complete
 Phase 4  — Layout Shell & Navigation        [ ] 0/3 steps complete
 Phase 5  — Inventory Management             [ ] 0/5 steps complete
@@ -587,7 +587,7 @@ git commit -m "feat(database): add product CRUD functions with search and soft-d
 
 ### Step 2.3 — Write sales database functions
 
-- [ ] **Task:** All functions for the `sales` and `sale_items` tables, including the atomic checkout.
+- [x] **Task:** All functions for the `sales` and `sale_items` tables, including the atomic checkout.
 
 **`src/database/sales.ts`**
 ```ts
