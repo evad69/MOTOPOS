@@ -1,14 +1,7 @@
 import { generateId } from "@/utils/generateId";
 import { sanitizeText } from "@/utils/validateInput";
 import { deductStock } from "./products";
-import { db, Sale, SaleItem } from "./db";
-
-interface CartItem {
-  productId: string;
-  productName: string;
-  quantity: number;
-  unitPrice: number;
-}
+import { CartItem, db, Sale, SaleItem } from "./db";
 
 interface SaleInput {
   paymentMethod?: string;

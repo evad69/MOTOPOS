@@ -1,1 +1,8 @@
-// Placeholder file for Phase 1 Step 1.4.
+import { useAppContext } from "@/context/AppContext";
+
+/** Returns the global dark mode state and toggle action. */
+export function useTheme() {
+  const { isDarkMode, toggleDarkMode } = useAppContext();
+
+  return { isDarkMode, toggleDarkMode };
+}
