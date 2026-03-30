@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
+import { ReceiptModal } from "@/components/ReceiptModal";
 import { TopBar } from "@/components/TopBar";
 import { useAppContext } from "@/context/AppContext";
 import { CartItem, Product } from "@/database/db";
@@ -516,6 +517,12 @@ export default function NewSalePage() {
     updateCartItemQuantity(productId, currentQuantity + 1);
   }
 
+  function handleReceiptClose() {
+    setIsReceiptVisible(false);
+    setCompletedSaleId(null);
+    setSelectedPaymentMethod("cash");
+  }
+
   async function handleCharge() {
     setIsProcessing(true);
     setCheckoutError(null);
@@ -575,10 +582,12 @@ export default function NewSalePage() {
             selectedPaymentMethod={selectedPaymentMethod}
           />
         </div>
-        {isReceiptVisible && completedSaleId ? (
-          <div className="sr-only">{completedSaleId}</div>
-        ) : null}
       </div>
+      <ReceiptModal
+        isVisible={isReceiptVisible}
+        onClose={handleReceiptClose}
+        saleId={completedSaleId}
+      />
     </>
   );
 }

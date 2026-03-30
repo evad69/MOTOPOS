@@ -41,6 +41,11 @@ export async function getSaleItems(saleId: string): Promise<SaleItem[]> {
   return db.sale_items.where("sale_id").equals(saleId).toArray();
 }
 
+/** Returns a single sale record by ID, or undefined if it does not exist. */
+export async function getSaleById(saleId: string): Promise<Sale | undefined> {
+  return db.sales.get(saleId);
+}
+
 /** Returns sales within an inclusive ISO date range. */
 export async function getSalesByDateRange(
   startDate: string,

@@ -65,7 +65,7 @@ Phase 2  — Database Layer (IndexedDB/Dexie) [x] 5/5 steps complete
 Phase 3  — Theme & Design System            [x] 4/4 steps complete
 Phase 4  — Layout Shell & Navigation        [x] 3/3 steps complete
 Phase 5  — Inventory Management             [x] 5/5 steps complete
-Phase 6  — New Sale & Checkout              [ ] 3/5 steps complete
+Phase 6  — New Sale & Checkout              [ ] 4/5 steps complete
 Phase 7  — Dashboard                        [ ] 0/4 steps complete
 Phase 8  — Sale History                     [ ] 0/3 steps complete
 Phase 9  — Supabase Cloud Sync              [ ] 0/4 steps complete
@@ -1314,7 +1314,7 @@ git commit -m "feat(sale): implement checkout action with payment method and err
 
 ### Step 6.4 — Build the receipt modal
 
-- [ ] **Task:** Post-checkout receipt displayed in a dialog/modal overlay.
+- [x] **Task:** Post-checkout receipt displayed in a dialog/modal overlay.
 
 - Full-screen overlay or centered modal
 - Shows: date/time, itemized list (name, qty, unit price, subtotal), total, payment method
