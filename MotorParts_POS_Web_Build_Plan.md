@@ -67,7 +67,7 @@ Phase 4  — Layout Shell & Navigation        [x] 3/3 steps complete
 Phase 5  — Inventory Management             [x] 5/5 steps complete
 Phase 6  — New Sale & Checkout              [x] 5/5 steps complete
 Phase 7  — Dashboard                        [x] 4/4 steps complete
-Phase 8  — Sale History                     [ ] 1/3 steps complete
+Phase 8  — Sale History                     [ ] 2/3 steps complete
 Phase 9  — Supabase Cloud Sync              [ ] 0/4 steps complete
 Phase 10 — AI Assistant                     [ ] 0/5 steps complete
 Phase 11 — Barcode Scanner                  [ ] 0/2 steps complete
@@ -1460,7 +1460,7 @@ git commit -m "feat(history): implement sale history list with date range filter
 
 ### Step 8.2 — Build the Sale Detail page
 
-- [ ] **Task:** Full itemized receipt view for a single sale.
+- [x] **Task:** Full itemized receipt view for a single sale.
 
 `src/app/history/[id]/page.tsx`:
 - Calls `getRecentSales()` and filters by `id`, plus `getSaleItems(id)` for line items
