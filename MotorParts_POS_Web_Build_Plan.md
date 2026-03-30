@@ -61,7 +61,7 @@ Types: `feat`, `chore`, `test`, `style`, `perf`, `a11y`, `milestone`
 
 ```
 Phase 1  — Project Setup & Foundation       [x] 6/6 steps complete
-Phase 2  — Database Layer (IndexedDB/Dexie) [ ] 0/5 steps complete
+Phase 2  — Database Layer (IndexedDB/Dexie) [ ] 1/5 steps complete
 Phase 3  — Theme & Design System            [ ] 0/4 steps complete
 Phase 4  — Layout Shell & Navigation        [ ] 0/3 steps complete
 Phase 5  — Inventory Management             [ ] 0/5 steps complete
@@ -398,7 +398,7 @@ git commit --allow-empty -m "milestone(phase-1): project setup and foundation co
 
 ### Step 2.1 — Define the Dexie database and schema
 
-- [ ] **Task:** Create the Dexie database class with all table definitions and version migrations.
+- [x] **Task:** Create the Dexie database class with all table definitions and version migrations.
 
 **`src/database/db.ts`**
 ```ts
