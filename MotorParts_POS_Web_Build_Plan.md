@@ -62,7 +62,7 @@ Types: `feat`, `chore`, `test`, `style`, `perf`, `a11y`, `milestone`
 ```
 Phase 1  — Project Setup & Foundation       [x] 6/6 steps complete
 Phase 2  — Database Layer (IndexedDB/Dexie) [x] 5/5 steps complete
-Phase 3  — Theme & Design System            [ ] 3/4 steps complete
+Phase 3  — Theme & Design System            [x] 4/4 steps complete
 Phase 4  — Layout Shell & Navigation        [ ] 0/3 steps complete
 Phase 5  — Inventory Management             [ ] 0/5 steps complete
 Phase 6  — New Sale & Checkout              [ ] 0/5 steps complete
@@ -1008,7 +1008,7 @@ git commit -m "feat(theme): add AppContext with dark mode toggle and cart state"
 
 ### Step 3.4 — Build reusable base UI components
 
-- [ ] **Task:** Create the shared UI components every page will use. All must use CSS variable classes — no hardcoded hex values.
+- [x] **Task:** Create the shared UI components every page will use. All must use CSS variable classes — no hardcoded hex values.
 
 | Component | Description |
 |---|---|
