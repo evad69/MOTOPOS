@@ -65,7 +65,7 @@ Phase 2  — Database Layer (IndexedDB/Dexie) [x] 5/5 steps complete
 Phase 3  — Theme & Design System            [x] 4/4 steps complete
 Phase 4  — Layout Shell & Navigation        [x] 3/3 steps complete
 Phase 5  — Inventory Management             [x] 5/5 steps complete
-Phase 6  — New Sale & Checkout              [ ] 4/5 steps complete
+Phase 6  — New Sale & Checkout              [x] 5/5 steps complete
 Phase 7  — Dashboard                        [ ] 0/4 steps complete
 Phase 8  — Sale History                     [ ] 0/3 steps complete
 Phase 9  — Supabase Cloud Sync              [ ] 0/4 steps complete
@@ -1331,16 +1331,16 @@ git commit -m "feat(sale): implement post-checkout receipt modal with browser pr
 
 ### Step 6.5 — End-to-end checkout verification
 
-- [ ] **Task:** Test the full sale flow.
+- [x] **Task:** Test the full sale flow.
 
 Checklist:
-- [ ] Add 3 different products to cart with different quantities
-- [ ] Increase and decrease quantities using the +/- controls
-- [ ] Remove an item using the × button
-- [ ] Select GCash as payment method
-- [ ] Click Charge — receipt modal appears with correct totals
-- [ ] Click Done — cart is cleared, ready for the next sale
-- [ ] Open Inventory — stock quantities are correctly reduced
+- [x] Add 3 different products to cart with different quantities
+- [x] Increase and decrease quantities using the +/- controls
+- [x] Remove an item using the × button
+- [x] Select GCash as payment method
+- [x] Click Charge — receipt modal appears with correct totals
+- [x] Click Done — cart is cleared, ready for the next sale
+- [x] Open Inventory — stock quantities are correctly reduced
 
 > **Commit:**
 ```bash
