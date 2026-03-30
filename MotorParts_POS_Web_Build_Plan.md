@@ -67,7 +67,7 @@ Phase 4  — Layout Shell & Navigation        [x] 3/3 steps complete
 Phase 5  — Inventory Management             [x] 5/5 steps complete
 Phase 6  — New Sale & Checkout              [x] 5/5 steps complete
 Phase 7  — Dashboard                        [x] 4/4 steps complete
-Phase 8  — Sale History                     [ ] 2/3 steps complete
+Phase 8  — Sale History                     [x] 3/3 steps complete
 Phase 9  — Supabase Cloud Sync              [ ] 0/4 steps complete
 Phase 10 — AI Assistant                     [ ] 0/5 steps complete
 Phase 11 — Barcode Scanner                  [ ] 0/2 steps complete
@@ -1478,13 +1478,13 @@ git commit -m "feat(history): implement sale detail page with itemized receipt v
 
 ### Step 8.3 — Verify Sale History end-to-end
 
-- [ ] **Task:** Confirm history correctly reflects all sales.
+- [x] **Task:** Confirm history correctly reflects all sales.
 
 Checklist:
-- [ ] All sales appear in the history list
-- [ ] Date range filter shows correct results for Today, This Week, This Month
-- [ ] Clicking a row shows the correct itemized sale detail
-- [ ] Total revenue summary updates correctly based on selected date range
+- [x] All sales appear in the history list
+- [x] Date range filter shows correct results for Today, This Week, This Month
+- [x] Clicking a row shows the correct itemized sale detail
+- [x] Total revenue summary updates correctly based on selected date range
 
 > **Commit:**
 ```bash
