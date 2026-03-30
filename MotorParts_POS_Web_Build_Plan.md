@@ -60,7 +60,7 @@ Types: `feat`, `chore`, `test`, `style`, `perf`, `a11y`, `milestone`
 ## Progress Tracker
 
 ```
-Phase 1  — Project Setup & Foundation       [ ] 3/6 steps complete
+Phase 1  — Project Setup & Foundation       [ ] 4/6 steps complete
 Phase 2  — Database Layer (IndexedDB/Dexie) [ ] 0/5 steps complete
 Phase 3  — Theme & Design System            [ ] 0/4 steps complete
 Phase 4  — Layout Shell & Navigation        [ ] 0/3 steps complete
@@ -176,7 +176,7 @@ git commit -m "chore(config): add environment variable config and confirm gitign
 
 ### Step 1.4 — Create the full folder structure
 
-- [ ] **Task:** Create every directory and placeholder file the project will use. This makes the architecture visible and prevents import resolution errors later.
+- [x] **Task:** Create every directory and placeholder file the project will use. This makes the architecture visible and prevents import resolution errors later.
 
 ```bash
 # App Router pages
