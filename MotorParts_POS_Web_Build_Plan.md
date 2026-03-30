@@ -63,7 +63,7 @@ Types: `feat`, `chore`, `test`, `style`, `perf`, `a11y`, `milestone`
 Phase 1  — Project Setup & Foundation       [x] 6/6 steps complete
 Phase 2  — Database Layer (IndexedDB/Dexie) [x] 5/5 steps complete
 Phase 3  — Theme & Design System            [x] 4/4 steps complete
-Phase 4  — Layout Shell & Navigation        [ ] 1/3 steps complete
+Phase 4  — Layout Shell & Navigation        [ ] 2/3 steps complete
 Phase 5  — Inventory Management             [ ] 0/5 steps complete
 Phase 6  — New Sale & Checkout              [ ] 0/5 steps complete
 Phase 7  — Dashboard                        [ ] 0/4 steps complete
@@ -1073,7 +1073,7 @@ git commit -m "feat(layout): add Sidebar and TopBar navigation components"
 
 ### Step 4.2 — Wire the layout shell into the root layout
 
-- [ ] **Task:** Apply the sidebar + topbar layout to all pages via `src/app/layout.tsx`.
+- [x] **Task:** Apply the sidebar + topbar layout to all pages via `src/app/layout.tsx`.
 
 ```tsx
 // src/app/layout.tsx
