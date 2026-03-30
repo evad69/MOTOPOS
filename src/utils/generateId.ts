@@ -1,1 +1,4 @@
-// Placeholder file for Phase 1 Step 1.4.
+/** Generates a cryptographically random UUID for local record IDs. */
+export function generateId(): string {
+  return crypto.randomUUID();
+}

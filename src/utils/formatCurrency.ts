@@ -1,1 +1,8 @@
-// Placeholder file for Phase 1 Step 1.4.
+/** Formats a number as Philippine Peso currency. */
+export function formatCurrency(amount: number): string {
+  return new Intl.NumberFormat("en-PH", {
+    style: "currency",
+    currency: "PHP",
+    minimumFractionDigits: 2,
+  }).format(amount);
+}

@@ -60,7 +60,7 @@ Types: `feat`, `chore`, `test`, `style`, `perf`, `a11y`, `milestone`
 ## Progress Tracker
 
 ```
-Phase 1  — Project Setup & Foundation       [ ] 4/6 steps complete
+Phase 1  — Project Setup & Foundation       [ ] 5/6 steps complete
 Phase 2  — Database Layer (IndexedDB/Dexie) [ ] 0/5 steps complete
 Phase 3  — Theme & Design System            [ ] 0/4 steps complete
 Phase 4  — Layout Shell & Navigation        [ ] 0/3 steps complete
@@ -254,7 +254,7 @@ git commit -m "chore(structure): scaffold full project folder and file structure
 
 ### Step 1.5 — Write shared utility helpers
 
-- [ ] **Task:** Implement the utility functions that every other module will depend on.
+- [x] **Task:** Implement the utility functions that every other module will depend on.
 
 **`src/utils/generateId.ts`**
 ```ts
