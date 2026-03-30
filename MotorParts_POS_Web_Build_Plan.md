@@ -61,7 +61,7 @@ Types: `feat`, `chore`, `test`, `style`, `perf`, `a11y`, `milestone`
 
 ```
 Phase 1  — Project Setup & Foundation       [x] 6/6 steps complete
-Phase 2  — Database Layer (IndexedDB/Dexie) [ ] 1/5 steps complete
+Phase 2  — Database Layer (IndexedDB/Dexie) [ ] 2/5 steps complete
 Phase 3  — Theme & Design System            [ ] 0/4 steps complete
 Phase 4  — Layout Shell & Navigation        [ ] 0/3 steps complete
 Phase 5  — Inventory Management             [ ] 0/5 steps complete
@@ -490,7 +490,7 @@ git commit -m "feat(database): add Dexie database class with all table definitio
 
 ### Step 2.2 — Write product database functions
 
-- [ ] **Task:** All CRUD operations for the `products` table.
+- [x] **Task:** All CRUD operations for the `products` table.
 
 **`src/database/products.ts`**
 ```ts
