@@ -1,4 +1,6 @@
-/** Renders a placeholder new sale page until the feature is implemented. */
+import { PagePlaceholder } from "@/components/PagePlaceholder";
+
+/** Renders a placeholder new sale page until checkout features are implemented. */
 export default function NewSalePage() {
-  return null;
+  return <PagePlaceholder phaseLabel="Phase 6" title="New Sale" />;
 }

@@ -63,7 +63,7 @@ Types: `feat`, `chore`, `test`, `style`, `perf`, `a11y`, `milestone`
 Phase 1  — Project Setup & Foundation       [x] 6/6 steps complete
 Phase 2  — Database Layer (IndexedDB/Dexie) [x] 5/5 steps complete
 Phase 3  — Theme & Design System            [x] 4/4 steps complete
-Phase 4  — Layout Shell & Navigation        [ ] 2/3 steps complete
+Phase 4  — Layout Shell & Navigation        [x] 3/3 steps complete
 Phase 5  — Inventory Management             [ ] 0/5 steps complete
 Phase 6  — New Sale & Checkout              [ ] 0/5 steps complete
 Phase 7  — Dashboard                        [ ] 0/4 steps complete
@@ -1115,7 +1115,7 @@ git commit -m "feat(layout): wire AppProvider and layout shell into root layout"
 
 ### Step 4.3 — Add placeholder pages with correct titles
 
-- [ ] **Task:** Give each page a `<TopBar title="..." />` and a themed body before filling in real content.
+- [x] **Task:** Give each page a `<TopBar title="..." />` and a themed body before filling in real content.
 
 For each of the 5 page files, add a minimal placeholder component that:
 - Passes the correct page title to `<TopBar>`
