@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { Card } from "@/components/Card";
 import { MetricCard } from "@/components/MetricCard";
 import { TopBar } from "@/components/TopBar";
 import { getLowStockProducts } from "@/database/products";
 import { getTodaySalesSummary, getTopSellingProducts } from "@/database/sales";
-import { LAYOUT, SPACING } from "@/theme/spacing";
+import { LAYOUT, RADIUS, SPACING } from "@/theme/spacing";
 import { fontSizes, fontWeights } from "@/theme/typography";
 import { formatCurrency } from "@/utils/formatCurrency";
 
@@ -15,6 +16,7 @@ interface DashboardMetrics {
   todaysTransactions: string;
   lowStockCount: string;
   topItemName: string;
+  lowStockProductNames: string[];
 }
 
 /** Returns the initial placeholder values shown before dashboard metrics finish loading. */
@@ -24,6 +26,7 @@ function createInitialMetrics(): DashboardMetrics {
     todaysTransactions: "—",
     lowStockCount: "—",
     topItemName: "Loading...",
+    lowStockProductNames: [],
   };
 }
 
@@ -51,6 +54,7 @@ function useDashboardMetrics() {
             todaysTransactions: String(todaySummary.transactionCount),
             lowStockCount: String(lowStockProducts.length),
             topItemName: topSellingProducts[0]?.name ?? "No sales yet",
+            lowStockProductNames: lowStockProducts.map((product) => product.name),
           });
         }
       } catch {
@@ -77,6 +81,30 @@ function useDashboardMetrics() {
   return { metrics, errorMessage };
 }
 
+/** Renders the dashboard warning banner for products that need restocking attention. */
+function LowStockAlertBanner({ lowStockProductNames }: { lowStockProductNames: string[] }) {
+  if (!lowStockProductNames.length) {
+    return null;
+  }
+
+  return (
+    <Link
+      className="block border border-warning bg-warning text-accent-navy transition-opacity duration-200 hover:opacity-90"
+      href="/inventory?tab=low-stock"
+      style={{ borderRadius: RADIUS.lg, padding: SPACING.lg }}
+    >
+      <div className="flex flex-col" style={{ gap: SPACING.xs }}>
+        <span style={{ fontSize: fontSizes.caption, fontWeight: fontWeights.bold }}>
+          Low Stock Alert
+        </span>
+        <span style={{ fontSize: fontSizes.body, fontWeight: fontWeights.medium }}>
+          {lowStockProductNames.join(", ")}
+        </span>
+      </div>
+    </Link>
+  );
+}
+
 /** Renders the dashboard metric card grid using live IndexedDB summary data. */
 export default function DashboardPage() {
   const { metrics, errorMessage } = useDashboardMetrics();
@@ -94,6 +122,7 @@ export default function DashboardPage() {
               Live sales and inventory metrics from your offline-first store data.
             </p>
           </div>
+          <LowStockAlertBanner lowStockProductNames={metrics.lowStockProductNames} />
           <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: SPACING.lg }}>
             <MetricCard label="Today's Revenue" value={metrics.todaysRevenue} />
             <MetricCard label="Transactions Today" value={metrics.todaysTransactions} />

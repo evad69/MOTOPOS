@@ -47,6 +47,15 @@ interface CategorySectionCardProps {
   onSelectProduct: (productId: string) => void;
 }
 
+/** Returns a valid inventory tab from a search-param value when one is provided. */
+function getInventoryTabFromQuery(tabValue: string | null): InventoryTab | null {
+  if (tabValue === "all" || tabValue === "low-stock" || tabValue === "by-category") {
+    return tabValue;
+  }
+
+  return null;
+}
+
 /** Returns products ordered by category and then by product name. */
 function sortProductsByCategory(products: Product[]): Product[] {
   return [...products].sort((firstProduct, secondProduct) => {
@@ -401,6 +410,14 @@ export default function InventoryPage() {
     activeTab,
     debouncedSearchQuery,
   );
+
+  useEffect(() => {
+    const currentSearchParams = new URLSearchParams(window.location.search);
+    const requestedTab = getInventoryTabFromQuery(currentSearchParams.get("tab"));
+    if (requestedTab) {
+      setActiveTab(requestedTab);
+    }
+  }, []);
 
   return (
     <>

@@ -66,7 +66,7 @@ Phase 3  — Theme & Design System            [x] 4/4 steps complete
 Phase 4  — Layout Shell & Navigation        [x] 3/3 steps complete
 Phase 5  — Inventory Management             [x] 5/5 steps complete
 Phase 6  — New Sale & Checkout              [x] 5/5 steps complete
-Phase 7  — Dashboard                        [ ] 1/4 steps complete
+Phase 7  — Dashboard                        [ ] 2/4 steps complete
 Phase 8  — Sale History                     [ ] 0/3 steps complete
 Phase 9  — Supabase Cloud Sync              [ ] 0/4 steps complete
 Phase 10 — AI Assistant                     [ ] 0/5 steps complete
@@ -1381,7 +1381,7 @@ git commit -m "feat(dashboard): implement metric card grid with live IndexedDB d
 
 ### Step 7.2 — Build the low stock alert banner
 
-- [ ] **Task:** Amber warning banner when any product stock is at or below its threshold.
+- [x] **Task:** Amber warning banner when any product stock is at or below its threshold.
 
 - Query `getLowStockProducts()` on page load
 - If `lowStockProducts.length > 0`: render amber banner listing all low-stock item names
