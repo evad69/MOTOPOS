@@ -5,7 +5,7 @@ import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
 import { TopBar } from "@/components/TopBar";
 import { useAppContext } from "@/context/AppContext";
-import { Product } from "@/database/db";
+import { CartItem, Product } from "@/database/db";
 import { getAllProducts, searchProducts } from "@/database/products";
 import { LAYOUT, RADIUS, SPACING } from "@/theme/spacing";
 import { fontSizes, fontWeights } from "@/theme/typography";
@@ -19,6 +19,21 @@ interface ProductSearchToolbarProps {
 interface SaleProductCardProps {
   product: Product;
   onAddToCart: (product: Product) => void;
+}
+
+interface CartPanelProps {
+  cartItems: CartItem[];
+  cartTotal: number;
+  onDecreaseQuantity: (productId: string, currentQuantity: number) => void;
+  onIncreaseQuantity: (productId: string, currentQuantity: number) => void;
+  onRemoveItem: (productId: string) => void;
+}
+
+interface CartItemRowProps {
+  cartItem: CartItem;
+  onDecreaseQuantity: (productId: string, currentQuantity: number) => void;
+  onIncreaseQuantity: (productId: string, currentQuantity: number) => void;
+  onRemoveItem: (productId: string) => void;
 }
 
 /** Returns a debounced copy of a value to reduce product re-query frequency. */
@@ -132,6 +147,26 @@ function ProductStockLabel({ stockQty }: { stockQty: number }) {
   );
 }
 
+/** Renders a square quantity control button for the cart panel. */
+function QuantityButton({ label, onClick }: { label: string; onClick: () => void }) {
+  return (
+    <button
+      className="inline-flex items-center justify-center border border-[var(--border)] bg-bg-primary text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+      onClick={onClick}
+      style={{
+        width: LAYOUT.minClickTarget,
+        minHeight: LAYOUT.minClickTarget,
+        borderRadius: RADIUS.md,
+        fontSize: fontSizes.section,
+        fontWeight: fontWeights.semibold,
+      }}
+      type="button"
+    >
+      {label}
+    </button>
+  );
+}
+
 /** Renders a product card with stock, price, and add-to-cart action. */
 function SaleProductCard({ product, onAddToCart }: SaleProductCardProps) {
   const isOutOfStock = product.stock_qty === 0;
@@ -163,6 +198,132 @@ function SaleProductCard({ product, onAddToCart }: SaleProductCardProps) {
         <Button disabled={isOutOfStock} onClick={() => onAddToCart(product)}>
           + Add
         </Button>
+      </div>
+    </Card>
+  );
+}
+
+/** Renders one editable cart row with quantity controls and subtotal. */
+function CartItemRow({
+  cartItem,
+  onDecreaseQuantity,
+  onIncreaseQuantity,
+  onRemoveItem,
+}: CartItemRowProps) {
+  const subtotal = cartItem.quantity * cartItem.unitPrice;
+
+  return (
+    <div
+      className="border border-[var(--border)] bg-bg-primary"
+      style={{ borderRadius: RADIUS.md, padding: SPACING.md }}
+    >
+      <div className="flex items-start justify-between" style={{ gap: SPACING.md }}>
+        <div>
+          <p className="text-text-primary" style={{ fontSize: fontSizes.section, fontWeight: fontWeights.semibold }}>
+            {cartItem.productName}
+          </p>
+          <p className="text-text-secondary" style={{ fontSize: fontSizes.caption }}>
+            {formatCurrency(cartItem.unitPrice)} each
+          </p>
+        </div>
+        <button
+          aria-label={`Remove ${cartItem.productName}`}
+          className="text-text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          onClick={() => onRemoveItem(cartItem.productId)}
+          style={{
+            width: LAYOUT.minClickTarget,
+            minHeight: LAYOUT.minClickTarget,
+            borderRadius: RADIUS.md,
+            fontSize: fontSizes.title,
+            fontWeight: fontWeights.medium,
+          }}
+          type="button"
+        >
+          ×
+        </button>
+      </div>
+      <div className="flex items-center justify-between" style={{ gap: SPACING.md, marginTop: SPACING.md }}>
+        <div className="flex items-center" style={{ gap: SPACING.sm }}>
+          <QuantityButton
+            label="-"
+            onClick={() => onDecreaseQuantity(cartItem.productId, cartItem.quantity)}
+          />
+          <span className="text-text-primary" style={{ minWidth: LAYOUT.minClickTarget, textAlign: "center", fontSize: fontSizes.section, fontWeight: fontWeights.semibold }}>
+            {cartItem.quantity}
+          </span>
+          <QuantityButton
+            label="+"
+            onClick={() => onIncreaseQuantity(cartItem.productId, cartItem.quantity)}
+          />
+        </div>
+        <span className="text-text-primary" style={{ fontSize: fontSizes.price, fontWeight: fontWeights.semibold }}>
+          {formatCurrency(subtotal)}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/** Renders the right-side cart summary panel for the New Sale page. */
+function CartPanel({
+  cartItems,
+  cartTotal,
+  onDecreaseQuantity,
+  onIncreaseQuantity,
+  onRemoveItem,
+}: CartPanelProps) {
+  const hasItems = cartItems.length > 0;
+  const chargeButtonLabel = hasItems
+    ? `Charge ${formatCurrency(cartTotal)}`
+    : "Add items to charge";
+
+  return (
+    <Card className="h-full">
+      <div className="flex h-full flex-col" style={{ gap: SPACING.lg }}>
+        <div>
+          <p className="text-text-primary" style={{ fontSize: fontSizes.title, fontWeight: fontWeights.semibold }}>
+            Current Cart
+          </p>
+          <p className="text-text-secondary" style={{ fontSize: fontSizes.body }}>
+            Review quantities and totals before checkout.
+          </p>
+        </div>
+        {hasItems ? (
+          <div className="flex flex-col" style={{ gap: SPACING.md }}>
+            {cartItems.map((cartItem) => (
+              <CartItemRow
+                cartItem={cartItem}
+                key={cartItem.productId}
+                onDecreaseQuantity={onDecreaseQuantity}
+                onIncreaseQuantity={onIncreaseQuantity}
+                onRemoveItem={onRemoveItem}
+              />
+            ))}
+          </div>
+        ) : (
+          <div
+            className="flex items-center justify-center border border-dashed border-[var(--border)] text-text-secondary"
+            style={{ borderRadius: RADIUS.md, minHeight: 180, padding: SPACING.lg }}
+          >
+            Your cart is empty.
+          </div>
+        )}
+        <div
+          className="mt-auto"
+          style={{ borderTop: "1px solid var(--border)", paddingTop: SPACING.lg }}
+        >
+          <div className="flex items-end justify-between" style={{ gap: SPACING.md, marginBottom: SPACING.lg }}>
+            <span className="text-text-secondary" style={{ fontSize: fontSizes.section, fontWeight: fontWeights.medium }}>
+              Total
+            </span>
+            <span className="text-text-primary" style={{ fontSize: fontSizes.display, fontWeight: fontWeights.bold }}>
+              {formatCurrency(cartTotal)}
+            </span>
+          </div>
+          <Button fullWidth onClick={() => undefined} disabled={!hasItems} variant="navy">
+            {chargeButtonLabel}
+          </Button>
+        </div>
       </div>
     </Card>
   );
@@ -206,34 +367,57 @@ function ProductBrowserPanel({
 
 /** Renders the New Sale page product browser and add-to-cart actions. */
 export default function NewSalePage() {
-  const { addItemToCart } = useAppContext();
+  const {
+    addItemToCart,
+    cartItems,
+    cartTotal,
+    removeItemFromCart,
+    updateCartItemQuantity,
+  } = useAppContext();
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedSearchQuery = useDebouncedValue(searchQuery, 200);
   const { products, isLoading, errorMessage } = useSaleProducts(debouncedSearchQuery);
+
+  function decreaseCartQuantity(productId: string, currentQuantity: number) {
+    updateCartItemQuantity(productId, Math.max(1, currentQuantity - 1));
+  }
+
+  function increaseCartQuantity(productId: string, currentQuantity: number) {
+    updateCartItemQuantity(productId, currentQuantity + 1);
+  }
 
   return (
     <>
       <TopBar title="New Sale" />
       <div style={{ margin: "0 auto", maxWidth: LAYOUT.maxContentWidth, padding: SPACING.xl }}>
-        <div className="flex flex-col" style={{ gap: SPACING.lg }}>
-          <Card>
-            <div className="flex flex-col" style={{ gap: SPACING.lg }}>
-              <div>
-                <p className="text-text-primary" style={{ fontSize: fontSizes.display, fontWeight: fontWeights.semibold }}>
-                  Product Browser
-                </p>
-                <p className="text-text-secondary" style={{ fontSize: fontSizes.body }}>
-                  Search available inventory and add items to the current cart.
-                </p>
+        <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]" style={{ gap: SPACING.lg }}>
+          <div className="flex min-w-0 flex-col" style={{ gap: SPACING.lg }}>
+            <Card>
+              <div className="flex flex-col" style={{ gap: SPACING.lg }}>
+                <div>
+                  <p className="text-text-primary" style={{ fontSize: fontSizes.display, fontWeight: fontWeights.semibold }}>
+                    Product Browser
+                  </p>
+                  <p className="text-text-secondary" style={{ fontSize: fontSizes.body }}>
+                    Search available inventory and add items to the current cart.
+                  </p>
+                </div>
+                <ProductSearchToolbar onSearchChange={setSearchQuery} searchQuery={searchQuery} />
               </div>
-              <ProductSearchToolbar onSearchChange={setSearchQuery} searchQuery={searchQuery} />
-            </div>
-          </Card>
-          <ProductBrowserPanel
-            errorMessage={errorMessage}
-            isLoading={isLoading}
-            onAddToCart={addItemToCart}
-            products={products}
+            </Card>
+            <ProductBrowserPanel
+              errorMessage={errorMessage}
+              isLoading={isLoading}
+              onAddToCart={addItemToCart}
+              products={products}
+            />
+          </div>
+          <CartPanel
+            cartItems={cartItems}
+            cartTotal={cartTotal}
+            onDecreaseQuantity={decreaseCartQuantity}
+            onIncreaseQuantity={increaseCartQuantity}
+            onRemoveItem={removeItemFromCart}
           />
         </div>
       </div>

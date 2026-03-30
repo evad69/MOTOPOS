@@ -65,7 +65,7 @@ Phase 2  — Database Layer (IndexedDB/Dexie) [x] 5/5 steps complete
 Phase 3  — Theme & Design System            [x] 4/4 steps complete
 Phase 4  — Layout Shell & Navigation        [x] 3/3 steps complete
 Phase 5  — Inventory Management             [x] 5/5 steps complete
-Phase 6  — New Sale & Checkout              [ ] 1/5 steps complete
+Phase 6  — New Sale & Checkout              [ ] 2/5 steps complete
 Phase 7  — Dashboard                        [ ] 0/4 steps complete
 Phase 8  — Sale History                     [ ] 0/3 steps complete
 Phase 9  — Supabase Cloud Sync              [ ] 0/4 steps complete
@@ -1263,7 +1263,7 @@ git commit -m "feat(sale): implement product browser and add-to-cart on New Sale
 
 ### Step 6.2 — Build the cart panel
 
-- [ ] **Task:** Right panel of the New Sale page — cart, totals, charge button.
+- [x] **Task:** Right panel of the New Sale page — cart, totals, charge button.
 
 - Cart list: product name, qty controls (+/-), subtotal per row, remove (×) button
 - Total amount displayed prominently
