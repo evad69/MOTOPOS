@@ -64,7 +64,7 @@ Phase 1  — Project Setup & Foundation       [x] 6/6 steps complete
 Phase 2  — Database Layer (IndexedDB/Dexie) [x] 5/5 steps complete
 Phase 3  — Theme & Design System            [x] 4/4 steps complete
 Phase 4  — Layout Shell & Navigation        [x] 3/3 steps complete
-Phase 5  — Inventory Management             [ ] 0/5 steps complete
+Phase 5  — Inventory Management             [ ] 1/5 steps complete
 Phase 6  — New Sale & Checkout              [ ] 0/5 steps complete
 Phase 7  — Dashboard                        [ ] 0/4 steps complete
 Phase 8  — Sale History                     [ ] 0/3 steps complete
@@ -1144,7 +1144,7 @@ git commit --allow-empty -m "milestone(phase-4): layout shell active on all page
 
 ### Step 5.1 — Build the Inventory list page
 
-- [ ] **Task:** Display all products with search and tab filters.
+- [x] **Task:** Display all products with search and tab filters.
 
 `src/app/inventory/page.tsx` must implement:
 - Tab bar: **All Items · Low Stock · By Category** (active tab has accent underline)
