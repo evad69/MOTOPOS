@@ -61,7 +61,7 @@ Types: `feat`, `chore`, `test`, `style`, `perf`, `a11y`, `milestone`
 
 ```
 Phase 1  — Project Setup & Foundation       [x] 6/6 steps complete
-Phase 2  — Database Layer (IndexedDB/Dexie) [ ] 3/5 steps complete
+Phase 2  — Database Layer (IndexedDB/Dexie) [ ] 4/5 steps complete
 Phase 3  — Theme & Design System            [ ] 0/4 steps complete
 Phase 4  — Layout Shell & Navigation        [ ] 0/3 steps complete
 Phase 5  — Inventory Management             [ ] 0/5 steps complete
@@ -729,7 +729,7 @@ git commit -m "feat(database): add sales CRUD and atomic checkout transaction"
 
 ### Step 2.4 — Smoke test the database layer in a temporary test page
 
-- [ ] **Task:** Temporarily create a `/test-db` page to confirm the full database layer works in the browser.
+- [x] **Task:** Temporarily create a `/test-db` page to confirm the full database layer works in the browser.
 
 Create `src/app/test-db/page.tsx` with a "Run DB Test" button that calls `insertProduct`, `getAllProducts`, and `softDeleteProduct`, then logs results to an on-screen output div. Delete the file after verification.
 
