@@ -64,7 +64,7 @@ Phase 1  — Project Setup & Foundation       [x] 6/6 steps complete
 Phase 2  — Database Layer (IndexedDB/Dexie) [x] 5/5 steps complete
 Phase 3  — Theme & Design System            [x] 4/4 steps complete
 Phase 4  — Layout Shell & Navigation        [x] 3/3 steps complete
-Phase 5  — Inventory Management             [ ] 1/5 steps complete
+Phase 5  — Inventory Management             [ ] 2/5 steps complete
 Phase 6  — New Sale & Checkout              [ ] 0/5 steps complete
 Phase 7  — Dashboard                        [ ] 0/4 steps complete
 Phase 8  — Sale History                     [ ] 0/3 steps complete
@@ -1164,7 +1164,7 @@ git commit -m "feat(inventory): implement product list page with search and tabs
 
 ### Step 5.2 — Build the Add Product page
 
-- [ ] **Task:** Form for adding a new product.
+- [x] **Task:** Form for adding a new product.
 
 `src/app/inventory/new/page.tsx` must implement:
 - Form fields: Name, Brand, SKU, Category (select), Unit (select), Selling Price, Cost Price, Stock Qty, Low Stock Threshold
