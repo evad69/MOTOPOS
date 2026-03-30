@@ -61,7 +61,7 @@ Types: `feat`, `chore`, `test`, `style`, `perf`, `a11y`, `milestone`
 
 ```
 Phase 1  — Project Setup & Foundation       [x] 6/6 steps complete
-Phase 2  — Database Layer (IndexedDB/Dexie) [ ] 4/5 steps complete
+Phase 2  — Database Layer (IndexedDB/Dexie) [x] 5/5 steps complete
 Phase 3  — Theme & Design System            [ ] 0/4 steps complete
 Phase 4  — Layout Shell & Navigation        [ ] 0/3 steps complete
 Phase 5  — Inventory Management             [ ] 0/5 steps complete
@@ -745,7 +745,7 @@ git commit -m "test(database): verify product insert, query, and soft-delete in 
 
 ### Step 2.5 — Remove smoke test page
 
-- [ ] **Task:** Delete `src/app/test-db/` completely.
+- [x] **Task:** Delete `src/app/test-db/` completely.
 
 ```bash
 rm -rf src/app/test-db
