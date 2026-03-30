@@ -16,6 +16,7 @@ export const RADIUS = {
 
 export const LAYOUT = {
   sidebarWidth: 240,
+  collapsedSidebarWidth: 48,
   topBarHeight: 56,
   minClickTarget: 44,
   maxContentWidth: 1280,

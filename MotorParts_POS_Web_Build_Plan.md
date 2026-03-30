@@ -63,7 +63,7 @@ Types: `feat`, `chore`, `test`, `style`, `perf`, `a11y`, `milestone`
 Phase 1  — Project Setup & Foundation       [x] 6/6 steps complete
 Phase 2  — Database Layer (IndexedDB/Dexie) [x] 5/5 steps complete
 Phase 3  — Theme & Design System            [x] 4/4 steps complete
-Phase 4  — Layout Shell & Navigation        [ ] 0/3 steps complete
+Phase 4  — Layout Shell & Navigation        [ ] 1/3 steps complete
 Phase 5  — Inventory Management             [ ] 0/5 steps complete
 Phase 6  — New Sale & Checkout              [ ] 0/5 steps complete
 Phase 7  — Dashboard                        [ ] 0/4 steps complete
@@ -1047,7 +1047,7 @@ git commit --allow-empty -m "milestone(phase-3): design system and base componen
 
 ### Step 4.1 — Build the Sidebar and TopBar components
 
-- [ ] **Task:** Create the persistent navigation components.
+- [x] **Task:** Create the persistent navigation components.
 
 **`src/components/Sidebar.tsx`** — implement:
 - Fixed left sidebar, `w-[240px]`, `bg-accent-navy`, full-height
