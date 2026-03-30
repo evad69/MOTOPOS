@@ -66,7 +66,7 @@ Phase 3  — Theme & Design System            [x] 4/4 steps complete
 Phase 4  — Layout Shell & Navigation        [x] 3/3 steps complete
 Phase 5  — Inventory Management             [x] 5/5 steps complete
 Phase 6  — New Sale & Checkout              [x] 5/5 steps complete
-Phase 7  — Dashboard                        [ ] 0/4 steps complete
+Phase 7  — Dashboard                        [ ] 1/4 steps complete
 Phase 8  — Sale History                     [ ] 0/3 steps complete
 Phase 9  — Supabase Cloud Sync              [ ] 0/4 steps complete
 Phase 10 — AI Assistant                     [ ] 0/5 steps complete
@@ -1363,7 +1363,7 @@ git commit --allow-empty -m "milestone(phase-6): new sale and checkout fully imp
 
 ### Step 7.1 — Build the metric cards
 
-- [ ] **Task:** 2×2 grid of summary metrics at the top of the Dashboard.
+- [x] **Task:** 2×2 grid of summary metrics at the top of the Dashboard.
 
 `src/app/dashboard/page.tsx` top section:
 - Use `getTodaySalesSummary()` for today's revenue and transaction count
