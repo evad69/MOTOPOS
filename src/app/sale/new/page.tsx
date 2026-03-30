@@ -7,9 +7,12 @@ import { TopBar } from "@/components/TopBar";
 import { useAppContext } from "@/context/AppContext";
 import { CartItem, Product } from "@/database/db";
 import { getAllProducts, searchProducts } from "@/database/products";
+import { completeSale } from "@/database/sales";
 import { LAYOUT, RADIUS, SPACING } from "@/theme/spacing";
 import { fontSizes, fontWeights } from "@/theme/typography";
 import { formatCurrency } from "@/utils/formatCurrency";
+
+type PaymentMethod = "cash" | "gcash" | "maya";
 
 interface ProductSearchToolbarProps {
   searchQuery: string;
@@ -24,9 +27,14 @@ interface SaleProductCardProps {
 interface CartPanelProps {
   cartItems: CartItem[];
   cartTotal: number;
+  checkoutError: string | null;
+  isProcessing: boolean;
   onDecreaseQuantity: (productId: string, currentQuantity: number) => void;
+  onCharge: () => void;
   onIncreaseQuantity: (productId: string, currentQuantity: number) => void;
   onRemoveItem: (productId: string) => void;
+  onSelectPaymentMethod: (paymentMethod: PaymentMethod) => void;
+  selectedPaymentMethod: PaymentMethod;
 }
 
 interface CartItemRowProps {
@@ -49,7 +57,7 @@ function useDebouncedValue(value: string, delayMs: number): string {
 }
 
 /** Loads sellable products for the New Sale browser using the current search query. */
-function useSaleProducts(searchQuery: string) {
+function useSaleProducts(searchQuery: string, refreshKey: number) {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -84,7 +92,7 @@ function useSaleProducts(searchQuery: string) {
     return () => {
       isCancelled = true;
     };
-  }, [searchQuery]);
+  }, [refreshKey, searchQuery]);
 
   return { products, isLoading, errorMessage };
 }
@@ -165,6 +173,101 @@ function QuantityButton({ label, onClick }: { label: string; onClick: () => void
       {label}
     </button>
   );
+}
+
+/** Renders one selectable payment method chip in the cart checkout controls. */
+function PaymentMethodButton({
+  label,
+  isActive,
+  onClick,
+}: {
+  label: string;
+  isActive: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      className="flex-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+      onClick={onClick}
+      style={{
+        minHeight: LAYOUT.minClickTarget,
+        borderRadius: RADIUS.md,
+        paddingInline: SPACING.md,
+        paddingBlock: SPACING.sm,
+        backgroundColor: isActive ? "var(--accent-navy)" : "var(--bg-primary)",
+        color: isActive ? "var(--text-on-accent)" : "var(--text-secondary)",
+        border: "1px solid var(--border)",
+        fontSize: fontSizes.body,
+        fontWeight: isActive ? fontWeights.semibold : fontWeights.medium,
+      }}
+      type="button"
+    >
+      {label}
+    </button>
+  );
+}
+
+/** Renders the segmented payment method selector shown above the charge button. */
+function PaymentMethodSelector({
+  selectedPaymentMethod,
+  onSelectPaymentMethod,
+}: {
+  selectedPaymentMethod: PaymentMethod;
+  onSelectPaymentMethod: (paymentMethod: PaymentMethod) => void;
+}) {
+  return (
+    <div className="flex items-center" style={{ gap: SPACING.sm }}>
+      <PaymentMethodButton
+        isActive={selectedPaymentMethod === "cash"}
+        label="Cash"
+        onClick={() => onSelectPaymentMethod("cash")}
+      />
+      <PaymentMethodButton
+        isActive={selectedPaymentMethod === "gcash"}
+        label="GCash"
+        onClick={() => onSelectPaymentMethod("gcash")}
+      />
+      <PaymentMethodButton
+        isActive={selectedPaymentMethod === "maya"}
+        label="Maya"
+        onClick={() => onSelectPaymentMethod("maya")}
+      />
+    </div>
+  );
+}
+
+/** Renders the charge button label or loading state for checkout. */
+function ChargeButtonContent({
+  isProcessing,
+  hasItems,
+  cartTotal,
+}: {
+  isProcessing: boolean;
+  hasItems: boolean;
+  cartTotal: number;
+}) {
+  if (isProcessing) {
+    return (
+      <span className="inline-flex items-center justify-center" style={{ gap: SPACING.sm }}>
+        <span
+          aria-hidden="true"
+          className="animate-spin border-r-transparent"
+          style={{
+            width: SPACING.lg,
+            height: SPACING.lg,
+            borderRadius: RADIUS.full,
+            borderWidth: 2,
+            borderStyle: "solid",
+            borderColor: "var(--text-on-accent)",
+            borderRightColor: "transparent",
+          }}
+        />
+        Processing sale...
+      </span>
+    );
+  }
+
+  return hasItems ? `Charge ${formatCurrency(cartTotal)}` : "Add items to charge";
 }
 
 /** Renders a product card with stock, price, and add-to-cart action. */
@@ -268,14 +371,16 @@ function CartItemRow({
 function CartPanel({
   cartItems,
   cartTotal,
+  checkoutError,
+  isProcessing,
   onDecreaseQuantity,
+  onCharge,
   onIncreaseQuantity,
   onRemoveItem,
+  onSelectPaymentMethod,
+  selectedPaymentMethod,
 }: CartPanelProps) {
   const hasItems = cartItems.length > 0;
-  const chargeButtonLabel = hasItems
-    ? `Charge ${formatCurrency(cartTotal)}`
-    : "Add items to charge";
 
   return (
     <Card className="h-full">
@@ -312,6 +417,20 @@ function CartPanel({
           className="mt-auto"
           style={{ borderTop: "1px solid var(--border)", paddingTop: SPACING.lg }}
         >
+          <div className="flex flex-col" style={{ gap: SPACING.sm, marginBottom: SPACING.lg }}>
+            <span className="text-text-secondary" style={{ fontSize: fontSizes.caption, fontWeight: fontWeights.semibold }}>
+              Payment Method
+            </span>
+            <PaymentMethodSelector
+              onSelectPaymentMethod={onSelectPaymentMethod}
+              selectedPaymentMethod={selectedPaymentMethod}
+            />
+          </div>
+          {checkoutError ? (
+            <p className="text-danger" style={{ fontSize: fontSizes.body, fontWeight: fontWeights.medium, marginBottom: SPACING.lg }}>
+              {checkoutError}
+            </p>
+          ) : null}
           <div className="flex items-end justify-between" style={{ gap: SPACING.md, marginBottom: SPACING.lg }}>
             <span className="text-text-secondary" style={{ fontSize: fontSizes.section, fontWeight: fontWeights.medium }}>
               Total
@@ -320,8 +439,12 @@ function CartPanel({
               {formatCurrency(cartTotal)}
             </span>
           </div>
-          <Button fullWidth onClick={() => undefined} disabled={!hasItems} variant="navy">
-            {chargeButtonLabel}
+          <Button fullWidth onClick={onCharge} disabled={!hasItems || isProcessing} variant="navy">
+            <ChargeButtonContent
+              cartTotal={cartTotal}
+              hasItems={hasItems}
+              isProcessing={isProcessing}
+            />
           </Button>
         </div>
       </div>
@@ -371,12 +494,19 @@ export default function NewSalePage() {
     addItemToCart,
     cartItems,
     cartTotal,
+    clearCart,
     removeItemFromCart,
     updateCartItemQuantity,
   } = useAppContext();
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod>("cash");
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
+  const [completedSaleId, setCompletedSaleId] = useState<string | null>(null);
+  const [isReceiptVisible, setIsReceiptVisible] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
   const debouncedSearchQuery = useDebouncedValue(searchQuery, 200);
-  const { products, isLoading, errorMessage } = useSaleProducts(debouncedSearchQuery);
+  const { products, isLoading, errorMessage } = useSaleProducts(debouncedSearchQuery, refreshKey);
 
   function decreaseCartQuantity(productId: string, currentQuantity: number) {
     updateCartItemQuantity(productId, Math.max(1, currentQuantity - 1));
@@ -384,6 +514,26 @@ export default function NewSalePage() {
 
   function increaseCartQuantity(productId: string, currentQuantity: number) {
     updateCartItemQuantity(productId, currentQuantity + 1);
+  }
+
+  async function handleCharge() {
+    setIsProcessing(true);
+    setCheckoutError(null);
+
+    try {
+      const saleId = await completeSale(
+        { paymentMethod: selectedPaymentMethod },
+        cartItems,
+      );
+      clearCart();
+      setCompletedSaleId(saleId);
+      setIsReceiptVisible(true);
+      setRefreshKey((previousValue) => previousValue + 1);
+    } catch (error) {
+      setCheckoutError(error instanceof Error ? error.message : "Checkout failed.");
+    } finally {
+      setIsProcessing(false);
+    }
   }
 
   return (
@@ -415,11 +565,19 @@ export default function NewSalePage() {
           <CartPanel
             cartItems={cartItems}
             cartTotal={cartTotal}
+            checkoutError={checkoutError}
+            isProcessing={isProcessing}
             onDecreaseQuantity={decreaseCartQuantity}
+            onCharge={handleCharge}
             onIncreaseQuantity={increaseCartQuantity}
             onRemoveItem={removeItemFromCart}
+            onSelectPaymentMethod={setSelectedPaymentMethod}
+            selectedPaymentMethod={selectedPaymentMethod}
           />
         </div>
+        {isReceiptVisible && completedSaleId ? (
+          <div className="sr-only">{completedSaleId}</div>
+        ) : null}
       </div>
     </>
   );
