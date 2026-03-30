@@ -60,7 +60,7 @@ Types: `feat`, `chore`, `test`, `style`, `perf`, `a11y`, `milestone`
 ## Progress Tracker
 
 ```
-Phase 1  — Project Setup & Foundation       [ ] 2/6 steps complete
+Phase 1  — Project Setup & Foundation       [ ] 3/6 steps complete
 Phase 2  — Database Layer (IndexedDB/Dexie) [ ] 0/5 steps complete
 Phase 3  — Theme & Design System            [ ] 0/4 steps complete
 Phase 4  — Layout Shell & Navigation        [ ] 0/3 steps complete
@@ -144,7 +144,7 @@ git commit -m "chore(deps): install all project dependencies"
 
 ### Step 1.3 — Configure environment variables
 
-- [ ] **Task:** Set up secure environment variable management so no secrets are ever hardcoded or exposed to the browser.
+- [x] **Task:** Set up secure environment variable management so no secrets are ever hardcoded or exposed to the browser.
 
 Create **`.env.local`** in the project root:
 
