@@ -35,6 +35,18 @@ interface InventorySearchFieldProps {
   onChange: (value: string) => void;
 }
 
+interface CategorySection {
+  categoryName: string;
+  products: Product[];
+}
+
+interface CategorySectionCardProps {
+  section: CategorySection;
+  isExpanded: boolean;
+  onToggle: () => void;
+  onSelectProduct: (productId: string) => void;
+}
+
 /** Returns products ordered by category and then by product name. */
 function sortProductsByCategory(products: Product[]): Product[] {
   return [...products].sort((firstProduct, secondProduct) => {
@@ -64,6 +76,34 @@ async function queryInventoryProducts(
   }
 
   return activeTab === "by-category" ? sortProductsByCategory(baseProducts) : baseProducts;
+}
+
+/** Groups products into category sections for the By Category inventory tab. */
+function groupProductsByCategory(products: Product[]): CategorySection[] {
+  const sectionMap = new Map<string, Product[]>();
+
+  for (const product of sortProductsByCategory(products)) {
+    const categoryName = product.category || "Uncategorized";
+    const sectionProducts = sectionMap.get(categoryName) ?? [];
+    sectionProducts.push(product);
+    sectionMap.set(categoryName, sectionProducts);
+  }
+
+  return Array.from(sectionMap.entries()).map(([categoryName, sectionProducts]) => ({
+    categoryName,
+    products: sectionProducts,
+  }));
+}
+
+/** Preserves section toggle state while defaulting newly seen categories to expanded. */
+function buildExpandedCategoryState(
+  sections: CategorySection[],
+  previousState: Record<string, boolean>,
+): Record<string, boolean> {
+  return sections.reduce<Record<string, boolean>>((nextState, section) => {
+    nextState[section.categoryName] = previousState[section.categoryName] ?? true;
+    return nextState;
+  }, {});
 }
 
 /** Returns a debounced copy of a value to avoid running queries on every key press. */
@@ -257,6 +297,100 @@ function InventoryTable({
   );
 }
 
+/** Renders one collapsible category card in the grouped inventory view. */
+function CategorySectionCard({
+  section,
+  isExpanded,
+  onToggle,
+  onSelectProduct,
+}: CategorySectionCardProps) {
+  return (
+    <Card style={{ padding: 0 }}>
+      <button
+        className="flex w-full items-center justify-between bg-bg-secondary text-text-secondary font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        onClick={onToggle}
+        style={{
+          minHeight: LAYOUT.minClickTarget,
+          paddingInline: SPACING.lg,
+          paddingBlock: SPACING.md,
+          fontSize: fontSizes.body,
+        }}
+        type="button"
+      >
+        <span>
+          {section.categoryName} ({section.products.length})
+        </span>
+        <span>{isExpanded ? "Collapse" : "Expand"}</span>
+      </button>
+      {isExpanded ? (
+        <div style={{ borderTop: "1px solid var(--border)", padding: SPACING.lg }}>
+          <InventoryTableHeader />
+          <div style={{ marginTop: SPACING.sm }}>
+            {section.products.map((product) => (
+              <InventoryTableRow
+                key={product.id}
+                onSelectProduct={onSelectProduct}
+                product={product}
+              />
+            ))}
+          </div>
+        </div>
+      ) : null}
+    </Card>
+  );
+}
+
+/** Renders grouped inventory sections with collapsible category headers. */
+function CategorySectionList({
+  products,
+  isLoading,
+  errorMessage,
+  onSelectProduct,
+}: InventoryTableProps) {
+  const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
+  const sections = groupProductsByCategory(products);
+
+  useEffect(() => {
+    const nextSections = groupProductsByCategory(products);
+    setExpandedCategories((previousState) =>
+      buildExpandedCategoryState(nextSections, previousState),
+    );
+  }, [products]);
+
+  function toggleCategory(categoryName: string) {
+    setExpandedCategories((previousState) => ({
+      ...previousState,
+      [categoryName]: !(previousState[categoryName] ?? true),
+    }));
+  }
+
+  if (isLoading) {
+    return <Card>Loading inventory...</Card>;
+  }
+
+  if (errorMessage) {
+    return <Card>{errorMessage}</Card>;
+  }
+
+  if (!sections.length) {
+    return <Card>No products matched the current tab and search.</Card>;
+  }
+
+  return (
+    <div className="flex flex-col" style={{ gap: SPACING.md }}>
+      {sections.map((section) => (
+        <CategorySectionCard
+          isExpanded={expandedCategories[section.categoryName] ?? true}
+          key={section.categoryName}
+          onToggle={() => toggleCategory(section.categoryName)}
+          onSelectProduct={onSelectProduct}
+          section={section}
+        />
+      ))}
+    </div>
+  );
+}
+
 /** Renders the inventory list page with tabs, search, and product table navigation. */
 export default function InventoryPage() {
   const router = useRouter();
@@ -297,12 +431,21 @@ export default function InventoryPage() {
             <Button onClick={() => router.push("/inventory/new")}>+ Add Product</Button>
           </div>
           <InventorySearchField onChange={setSearchQuery} searchQuery={searchQuery} />
-          <InventoryTable
-            errorMessage={errorMessage}
-            isLoading={isLoading}
-            onSelectProduct={(productId) => router.push(`/inventory/${productId}`)}
-            products={products}
-          />
+          {activeTab === "by-category" ? (
+            <CategorySectionList
+              errorMessage={errorMessage}
+              isLoading={isLoading}
+              onSelectProduct={(productId) => router.push(`/inventory/${productId}`)}
+              products={products}
+            />
+          ) : (
+            <InventoryTable
+              errorMessage={errorMessage}
+              isLoading={isLoading}
+              onSelectProduct={(productId) => router.push(`/inventory/${productId}`)}
+              products={products}
+            />
+          )}
         </div>
       </div>
     </>

@@ -64,7 +64,7 @@ Phase 1  — Project Setup & Foundation       [x] 6/6 steps complete
 Phase 2  — Database Layer (IndexedDB/Dexie) [x] 5/5 steps complete
 Phase 3  — Theme & Design System            [x] 4/4 steps complete
 Phase 4  — Layout Shell & Navigation        [x] 3/3 steps complete
-Phase 5  — Inventory Management             [ ] 3/5 steps complete
+Phase 5  — Inventory Management             [ ] 4/5 steps complete
 Phase 6  — New Sale & Checkout              [ ] 0/5 steps complete
 Phase 7  — Dashboard                        [ ] 0/4 steps complete
 Phase 8  — Sale History                     [ ] 0/3 steps complete
@@ -1200,7 +1200,7 @@ git commit -m "feat(inventory): implement Edit Product page with soft-delete"
 
 ### Step 5.4 — Add category grouping to the By Category tab
 
-- [ ] **Task:** Group the full product list into sections by category.
+- [x] **Task:** Group the full product list into sections by category.
 
 - "By Category" tab renders products in collapsible sections, grouped client-side by the `category` field
 - Section headers styled in `bg-bg-secondary` with `text-text-secondary`, `font-semibold`
