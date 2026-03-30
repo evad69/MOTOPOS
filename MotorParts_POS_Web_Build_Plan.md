@@ -60,7 +60,7 @@ Types: `feat`, `chore`, `test`, `style`, `perf`, `a11y`, `milestone`
 ## Progress Tracker
 
 ```
-Phase 1  — Project Setup & Foundation       [ ] 1/6 steps complete
+Phase 1  — Project Setup & Foundation       [ ] 2/6 steps complete
 Phase 2  — Database Layer (IndexedDB/Dexie) [ ] 0/5 steps complete
 Phase 3  — Theme & Design System            [ ] 0/4 steps complete
 Phase 4  — Layout Shell & Navigation        [ ] 0/3 steps complete
@@ -107,7 +107,7 @@ git commit -m "chore(init): initialize Next.js 14 project with TypeScript, Tailw
 
 ### Step 1.2 — Install all dependencies
 
-- [ ] **Task:** Install every package the project will need across all phases in one go.
+- [x] **Task:** Install every package the project will need across all phases in one go.
 
 ```bash
 # Database (offline-first)
