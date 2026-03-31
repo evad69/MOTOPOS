@@ -69,7 +69,7 @@ Phase 6  — New Sale & Checkout              [x] 5/5 steps complete
 Phase 7  — Dashboard                        [x] 4/4 steps complete
 Phase 8  — Sale History                     [x] 3/3 steps complete
 Phase 9  — Supabase Cloud Sync              [x] 4/4 steps complete
-Phase 10 — AI Assistant                     [ ] 2/5 steps complete
+Phase 10 — AI Assistant                     [ ] 3/5 steps complete
 Phase 11 — Barcode Scanner                  [ ] 0/2 steps complete
 Phase 12 — PWA & Vercel Deployment          [ ] 0/3 steps complete
 Phase 13 — Polish & QA                      [ ] 0/4 steps complete
@@ -1688,7 +1688,7 @@ git commit -m "feat(ai): implement useAI hook with message state and API fetch"
 
 ### Step 10.3 — Build the AI Assistant page
 
-- [ ] **Task:** Full chat UI wired to the `useAI` hook.
+- [x] **Task:** Full chat UI wired to the `useAI` hook.
 
 `src/app/ai/page.tsx` must implement:
 - Navy header: "AI Assistant" title + "Powered by Gemini Flash" subtitle
