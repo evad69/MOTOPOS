@@ -32,15 +32,7 @@ export default function RootLayout({
         dangerouslySetInnerHTML={{
           __html: `
             if ('serviceWorker' in navigator) {
-              const registerServiceWorker = function () {
-                navigator.serviceWorker.register('/sw.js').catch(function () {});
-              };
-
-              if (document.readyState === 'complete') {
-                registerServiceWorker();
-              } else {
-                window.addEventListener('load', registerServiceWorker, { once: true });
-              }
+              navigator.serviceWorker.register('/sw.js').catch(function () {});
             }
           `,
         }}
