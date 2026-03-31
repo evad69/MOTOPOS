@@ -70,7 +70,7 @@ Phase 7  — Dashboard                        [x] 4/4 steps complete
 Phase 8  — Sale History                     [x] 3/3 steps complete
 Phase 9  — Supabase Cloud Sync              [x] 4/4 steps complete
 Phase 10 — AI Assistant                     [x] 5/5 steps complete
-Phase 11 — Barcode Scanner                  [ ] 1/2 steps complete
+Phase 11 — Barcode Scanner                  [x] 2/2 steps complete
 Phase 12 — PWA & Vercel Deployment          [ ] 0/3 steps complete
 Phase 13 — Polish & QA                      [ ] 0/4 steps complete
 ```
@@ -1786,15 +1786,15 @@ git commit -m "feat(scanner): implement barcode scanner with product lookup and 
 
 ### Step 11.2 — Verify barcode scanning
 
-- [ ] **Task:** Test with real SKUs in the browser.
+- [x] **Task:** Test with real SKUs in the browser.
 
 Checklist:
-- [ ] Browser camera permission prompt appears on first use
-- [ ] Scanner opens in the modal dialog
-- [ ] Scanning a known SKU adds the product to the cart and closes the modal
-- [ ] Scanning an unknown barcode shows the "not found" inline error
-- [ ] Denying camera permission shows a graceful message (no crash or blank screen)
-- [ ] Camera stream is properly released when the modal closes
+- [x] Browser camera permission prompt appears on first use
+- [x] Scanner opens in the modal dialog
+- [x] Scanning a known SKU adds the product to the cart and closes the modal
+- [x] Scanning an unknown barcode shows the "not found" inline error
+- [x] Denying camera permission shows a graceful message (no crash or blank screen)
+- [x] Camera stream is properly released when the modal closes
 
 > **Commit:**
 ```bash

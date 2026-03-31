@@ -203,15 +203,14 @@ export function BarcodeScannerDialog({
         <div style={{ marginTop: SPACING.xl }}>
           <div
             className="overflow-hidden border border-[var(--border)] bg-bg-surface"
+            id={scannerElementId}
             ref={scannerContainerReference}
             style={{
               borderRadius: RADIUS.md,
               minHeight: LAYOUT.minClickTarget * 6,
               padding: SPACING.md,
             }}
-          >
-            <div id={scannerElementId} />
-          </div>
+          />
           {cameraErrorMessage ? (
             <p
               className="text-danger"
