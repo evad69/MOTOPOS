@@ -46,7 +46,7 @@ function useAutoScroll(messageCount: number, isLoading: boolean) {
 /** Sends the opening AI greeting exactly once when the page first loads. */
 function useOpeningGreeting(
   messageCount: number,
-  sendMessage: (userMessage: string) => Promise<void>,
+  loadGreeting: (promptMessage: string) => Promise<void>,
 ) {
   const hasRequestedGreetingReference = useRef(false);
 
@@ -56,8 +56,8 @@ function useOpeningGreeting(
     }
 
     hasRequestedGreetingReference.current = true;
-    void sendMessage(openingGreetingPrompt);
-  }, [messageCount, sendMessage]);
+    void loadGreeting(openingGreetingPrompt);
+  }, [loadGreeting, messageCount]);
 }
 
 /** Renders the navy assistant header inside the chat card. */
@@ -184,10 +184,10 @@ function ChatComposer({
 
 /** Renders the fully wired AI assistant chat page with prompts, bubbles, and composer. */
 export default function AIPage() {
-  const { messages, isLoading, errorMessage, sendMessage } = useAI();
+  const { messages, isLoading, errorMessage, sendMessage, loadGreeting } = useAI();
   const [inputValue, setInputValue] = useState("");
   const messagesEndReference = useAutoScroll(messages.length, isLoading);
-  useOpeningGreeting(messages.length, sendMessage);
+  useOpeningGreeting(messages.length, loadGreeting);
 
   async function handleSendMessage() {
     const trimmedInputValue = inputValue.trim();

@@ -43,20 +43,25 @@ export function useAI() {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  async function sendMessage(userMessage: string): Promise<void> {
-    const trimmedUserMessage = userMessage.trim();
-    if (!trimmedUserMessage) {
+  async function requestMessageReply(
+    message: string,
+    role: "user" | "ai",
+  ): Promise<void> {
+    const trimmedMessage = message.trim();
+    if (!trimmedMessage || isLoading) {
       return;
     }
 
     setIsLoading(true);
     setErrorMessage(null);
-    setMessages((previousMessages) => {
-      return [...previousMessages, createChatMessage("user", trimmedUserMessage)];
-    });
+    if (role === "user") {
+      setMessages((previousMessages) => {
+        return [...previousMessages, createChatMessage("user", trimmedMessage)];
+      });
+    }
 
     try {
-      const reply = await requestAIReply(trimmedUserMessage);
+      const reply = await requestAIReply(trimmedMessage);
       setMessages((previousMessages) => {
         return [...previousMessages, createChatMessage("ai", reply)];
       });
@@ -67,5 +72,13 @@ export function useAI() {
     }
   }
 
-  return { messages, isLoading, errorMessage, sendMessage };
+  async function sendMessage(userMessage: string): Promise<void> {
+    await requestMessageReply(userMessage, "user");
+  }
+
+  async function loadGreeting(promptMessage: string): Promise<void> {
+    await requestMessageReply(promptMessage, "ai");
+  }
+
+  return { messages, isLoading, errorMessage, sendMessage, loadGreeting };
 }
