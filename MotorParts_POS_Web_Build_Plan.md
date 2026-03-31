@@ -68,7 +68,7 @@ Phase 5  — Inventory Management             [x] 5/5 steps complete
 Phase 6  — New Sale & Checkout              [x] 5/5 steps complete
 Phase 7  — Dashboard                        [x] 4/4 steps complete
 Phase 8  — Sale History                     [x] 3/3 steps complete
-Phase 9  — Supabase Cloud Sync              [ ] 3/4 steps complete
+Phase 9  — Supabase Cloud Sync              [x] 4/4 steps complete
 Phase 10 — AI Assistant                     [ ] 0/5 steps complete
 Phase 11 — Barcode Scanner                  [ ] 0/2 steps complete
 Phase 12 — PWA & Vercel Deployment          [ ] 0/3 steps complete
@@ -1588,13 +1588,13 @@ git commit -m "feat(sync): add live sync status dot to TopBar"
 
 ### Step 9.4 — Verify sync end-to-end
 
-- [ ] **Task:** Confirm IndexedDB records appear in Supabase within 5 seconds of reconnecting.
+- [x] **Task:** Confirm IndexedDB records appear in Supabase within 5 seconds of reconnecting.
 
 Checklist:
-- [ ] Complete a sale offline (disable wifi) — data stays in IndexedDB, sync dot is orange
-- [ ] Re-enable wifi — sync dot turns green within 5 seconds
-- [ ] Open Supabase Table Editor — sale and sale_items rows are present
-- [ ] No duplicate records on repeated syncs (upsert is idempotent)
+- [x] Complete a sale offline (disable wifi) — data stays in IndexedDB, sync dot is orange
+- [x] Re-enable wifi — sync dot turns green within 5 seconds
+- [x] Open Supabase Table Editor — sale and sale_items rows are present
+- [x] No duplicate records on repeated syncs (upsert is idempotent)
 
 > **Commit:**
 ```bash
