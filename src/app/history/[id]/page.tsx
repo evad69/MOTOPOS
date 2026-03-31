@@ -19,6 +19,8 @@ interface SaleDetailState {
   saleItems: SaleItem[];
 }
 
+const receiptTableColumns = "minmax(0, 1fr) minmax(3rem, auto) minmax(6rem, auto) minmax(7rem, auto)";
+
 function shouldShowCashSummary(sale: Sale): boolean {
   return sale.payment_method === "cash" && typeof sale.cash_received === "number";
 }
@@ -88,8 +90,8 @@ function SaleDetailTable({ saleItems }: { saleItems: SaleItem[] }) {
       <div
         className="grid text-text-secondary"
         style={{
-          gridTemplateColumns: "minmax(0, 1.8fr) auto auto auto",
-          gap: SPACING.md,
+          gridTemplateColumns: receiptTableColumns,
+          gap: SPACING.lg,
           padding: SPACING.md,
           borderBottom: "1px solid var(--border)",
           fontSize: fontSizes.caption,
@@ -97,9 +99,9 @@ function SaleDetailTable({ saleItems }: { saleItems: SaleItem[] }) {
         }}
       >
         <span>Item</span>
-        <span>Qty</span>
-        <span>Unit Price</span>
-        <span>Subtotal</span>
+        <span style={{ textAlign: "right" }}>Qty</span>
+        <span style={{ textAlign: "right" }}>Unit Price</span>
+        <span style={{ textAlign: "right" }}>Subtotal</span>
       </div>
       <div className="flex flex-col">
         {saleItems.map((saleItem) => (
@@ -107,17 +109,22 @@ function SaleDetailTable({ saleItems }: { saleItems: SaleItem[] }) {
             className="grid text-text-primary"
             key={saleItem.id}
             style={{
-              gridTemplateColumns: "minmax(0, 1.8fr) auto auto auto",
-              gap: SPACING.md,
+              gridTemplateColumns: receiptTableColumns,
+              gap: SPACING.lg,
               padding: SPACING.md,
               borderBottom: "1px solid var(--divider)",
               fontSize: fontSizes.body,
+              alignItems: "start",
             }}
           >
-            <span>{saleItem.product_name}</span>
-            <span>{saleItem.quantity}</span>
-            <span>{formatCurrency(saleItem.unit_price)}</span>
-            <span>{formatCurrency(saleItem.subtotal)}</span>
+            <span style={{ minWidth: 0, overflowWrap: "anywhere" }}>{saleItem.product_name}</span>
+            <span style={{ textAlign: "right", whiteSpace: "nowrap" }}>{saleItem.quantity}</span>
+            <span style={{ textAlign: "right", whiteSpace: "nowrap" }}>
+              {formatCurrency(saleItem.unit_price)}
+            </span>
+            <span style={{ textAlign: "right", whiteSpace: "nowrap" }}>
+              {formatCurrency(saleItem.subtotal)}
+            </span>
           </div>
         ))}
       </div>

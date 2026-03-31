@@ -18,6 +18,33 @@ interface TopSellingProduct {
   totalSold: number;
 }
 
+/** Converts a date input value into the ISO bounds for that local calendar day. */
+function getLocalDayIsoRange(dateValue: string): {
+  startIso: string;
+  endIso: string;
+} {
+  const [year, month, day] = dateValue.split("-").map(Number);
+  const startDate = new Date(year, month - 1, day, 0, 0, 0, 0);
+  const endDate = new Date(year, month - 1, day, 23, 59, 59, 999);
+
+  return {
+    startIso: startDate.toISOString(),
+    endIso: endDate.toISOString(),
+  };
+}
+
+/** Returns the ISO bounds for the current local calendar day. */
+function getTodayLocalIsoRange(): { startIso: string; endIso: string } {
+  const now = new Date();
+  const startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+  const endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+
+  return {
+    startIso: startDate.toISOString(),
+    endIso: endDate.toISOString(),
+  };
+}
+
 /** Returns the most recent sales, ordered newest first. */
 export async function getRecentSales(limit = 10): Promise<Sale[]> {
   return db.sales.orderBy("sale_date").reverse().limit(limit).toArray();
@@ -28,8 +55,11 @@ export async function getTodaySalesSummary(): Promise<{
   totalAmount: number;
   transactionCount: number;
 }> {
-  const todayPrefix = new Date().toISOString().split("T")[0];
-  const todaySales = await db.sales.where("sale_date").startsWith(todayPrefix).toArray();
+  const { startIso, endIso } = getTodayLocalIsoRange();
+  const todaySales = await db.sales
+    .where("sale_date")
+    .between(startIso, endIso, true, true)
+    .toArray();
 
   return {
     totalAmount: todaySales.reduce((sum, saleRecord) => {
@@ -54,11 +84,14 @@ export async function getSalesByDateRange(
   startDate: string,
   endDate: string,
 ): Promise<Sale[]> {
+  const startRange = getLocalDayIsoRange(startDate);
+  const endRange = getLocalDayIsoRange(endDate);
+
   return db.sales
     .where("sale_date")
     .between(
-      `${startDate}T00:00:00.000Z`,
-      `${endDate}T23:59:59.999Z`,
+      startRange.startIso,
+      endRange.endIso,
       true,
       true,
     )
