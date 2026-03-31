@@ -68,7 +68,7 @@ Phase 5  — Inventory Management             [x] 5/5 steps complete
 Phase 6  — New Sale & Checkout              [x] 5/5 steps complete
 Phase 7  — Dashboard                        [x] 4/4 steps complete
 Phase 8  — Sale History                     [x] 3/3 steps complete
-Phase 9  — Supabase Cloud Sync              [ ] 0/4 steps complete
+Phase 9  — Supabase Cloud Sync              [ ] 1/4 steps complete
 Phase 10 — AI Assistant                     [ ] 0/5 steps complete
 Phase 11 — Barcode Scanner                  [ ] 0/2 steps complete
 Phase 12 — PWA & Vercel Deployment          [ ] 0/3 steps complete
@@ -1507,7 +1507,7 @@ git commit --allow-empty -m "milestone(phase-8): sale history fully implemented 
 
 ### Step 9.1 — Set up the Supabase client
 
-- [ ] **Task:** Initialize the Supabase client and create the matching tables in Supabase.
+- [x] **Task:** Initialize the Supabase client and create the matching tables in Supabase.
 
 **`src/services/supabase.ts`**
 ```ts
