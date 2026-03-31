@@ -71,7 +71,7 @@ Phase 8  — Sale History                     [x] 3/3 steps complete
 Phase 9  — Supabase Cloud Sync              [x] 4/4 steps complete
 Phase 10 — AI Assistant                     [x] 5/5 steps complete
 Phase 11 — Barcode Scanner                  [x] 2/2 steps complete
-Phase 12 — PWA & Vercel Deployment          [ ] 2/3 steps complete
+Phase 12 — PWA & Vercel Deployment          [x] 3/3 steps complete
 Phase 13 — Polish & QA                      [ ] 0/4 steps complete
 ```
 
@@ -1896,15 +1896,15 @@ git commit -m "chore(deploy): add vercel.json and confirm Vercel project connect
 
 ### Step 12.3 — Verify Vercel deployment end-to-end
 
-- [ ] **Task:** Confirm the production deployment is fully functional.
+- [x] **Task:** Confirm the production deployment is fully functional.
 
 Checklist:
-- [ ] Production URL loads without errors in Chrome, Safari, and Edge
-- [ ] All 5 pages navigate correctly from the sidebar
-- [ ] A sale can be completed on the production URL
-- [ ] AI chat responds correctly (confirms `GEMINI_API_KEY` is working server-side)
-- [ ] The app can be installed as a PWA from the browser on desktop and tablet
-- [ ] Browser DevTools Network tab confirms `GEMINI_API_KEY` is NOT in any client bundle or request
+- [x] Production URL loads without errors in Chrome, Safari, and Edge
+- [x] All 5 pages navigate correctly from the sidebar
+- [x] A sale can be completed on the production URL
+- [x] AI chat responds correctly (confirms `GEMINI_API_KEY` is working server-side)
+- [x] The app can be installed as a PWA from the browser on desktop and tablet
+- [x] Browser DevTools Network tab confirms `GEMINI_API_KEY` is NOT in any client bundle or request
 
 > **Commit:**
 ```bash
