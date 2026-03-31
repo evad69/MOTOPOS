@@ -82,7 +82,11 @@ function useTransientMessage(durationMs: number) {
 }
 
 /** Loads sellable products for the New Sale browser using the current search query. */
-function useSaleProducts(searchQuery: string, refreshKey: number) {
+function useSaleProducts(
+  searchQuery: string,
+  refreshKey: number,
+  syncRefreshKey: number,
+) {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -117,7 +121,7 @@ function useSaleProducts(searchQuery: string, refreshKey: number) {
     return () => {
       isCancelled = true;
     };
-  }, [refreshKey, searchQuery]);
+  }, [refreshKey, searchQuery, syncRefreshKey]);
 
   return { products, isLoading, errorMessage };
 }
@@ -589,6 +593,7 @@ export default function NewSalePage() {
     cartItems,
     cartTotal,
     clearCart,
+    lastSyncedAt,
     removeItemFromCart,
     updateCartItemQuantity,
   } = useAppContext();
@@ -603,7 +608,12 @@ export default function NewSalePage() {
   const [refreshKey, setRefreshKey] = useState(0);
   const { message: toastMessage, showMessage: showToastMessage } = useTransientMessage(2500);
   const debouncedSearchQuery = useDebouncedValue(searchQuery, 200);
-  const { products, isLoading, errorMessage } = useSaleProducts(debouncedSearchQuery, refreshKey);
+  const syncRefreshKey = lastSyncedAt?.getTime() ?? 0;
+  const { products, isLoading, errorMessage } = useSaleProducts(
+    debouncedSearchQuery,
+    refreshKey,
+    syncRefreshKey,
+  );
 
   function decreaseCartQuantity(productId: string, currentQuantity: number) {
     updateCartItemQuantity(productId, Math.max(1, currentQuantity - 1));

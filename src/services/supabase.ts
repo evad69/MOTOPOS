@@ -18,6 +18,14 @@ function getSupabaseAnonKey(): string {
   return process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || fallbackSupabaseAnonKey;
 }
 
+/** Returns whether the app has real Supabase credentials configured. */
+export function isSupabaseConfigured(): boolean {
+  return (
+    getSupabaseUrl() !== fallbackSupabaseUrl &&
+    getSupabaseAnonKey() !== fallbackSupabaseAnonKey
+  );
+}
+
 export const supabase = createClient(
   getSupabaseUrl(),
   getSupabaseAnonKey()

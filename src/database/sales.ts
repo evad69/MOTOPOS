@@ -1,4 +1,5 @@
 import { generateId } from "@/utils/generateId";
+import { syncPendingRecords } from "@/services/sync";
 import { sanitizeText } from "@/utils/validateInput";
 import { deductStock } from "./products";
 import { CartItem, db, Sale, SaleItem } from "./db";
@@ -152,6 +153,7 @@ export async function completeSale(
       await deductStock(cartItem.productId, cartItem.quantity);
     }
   });
+  void syncPendingRecords().catch(() => undefined);
 
   return saleId;
 }

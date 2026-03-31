@@ -6,12 +6,14 @@ import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
 import { ProductForm, ProductFormValues } from "@/components/ProductForm";
 import { TopBar } from "@/components/TopBar";
+import { useAppContext } from "@/context/AppContext";
 import { Product } from "@/database/db";
 import {
   getProductById,
   softDeleteProduct,
   updateProduct,
 } from "@/database/products";
+import { useProductOptions } from "@/hooks/useProductOptions";
 import { LAYOUT, SPACING } from "@/theme/spacing";
 import { sanitizeText, validateProductForm } from "@/utils/validateInput";
 
@@ -55,7 +57,7 @@ function buildProductChanges(
 }
 
 /** Loads the editable product form state for a given inventory item ID. */
-function useEditableProduct(productId: string) {
+function useEditableProduct(productId: string, syncRefreshKey: number) {
   const [formValues, setFormValues] = useState<ProductFormValues | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -84,7 +86,7 @@ function useEditableProduct(productId: string) {
     return () => {
       isCancelled = true;
     };
-  }, [productId]);
+  }, [productId, syncRefreshKey]);
 
   return { formValues, setFormValues, errorMessage, setErrorMessage, isLoading };
 }
@@ -110,8 +112,17 @@ export default function InventoryItemDetailPage() {
   const router = useRouter();
   const params = useParams<{ id: string }>();
   const productId = Array.isArray(params.id) ? params.id[0] : params.id;
+  const { lastSyncedAt } = useAppContext();
+  const {
+    categoryOptions,
+    unitOptions,
+    errorMessage: optionsErrorMessage,
+    addOption,
+    deleteOption,
+  } = useProductOptions();
+  const syncRefreshKey = lastSyncedAt?.getTime() ?? 0;
   const { formValues, setFormValues, errorMessage, setErrorMessage, isLoading } =
-    useEditableProduct(productId);
+    useEditableProduct(productId, syncRefreshKey);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -174,15 +185,21 @@ export default function InventoryItemDetailPage() {
         {!isLoading && !formValues ? <EditPageStatus message={errorMessage ?? "Product not found."} onBack={() => router.push("/inventory")} /> : null}
         {!isLoading && formValues ? (
           <ProductForm
-            errorMessage={errorMessage}
+            categoryOptions={categoryOptions}
+            errorMessage={errorMessage ?? optionsErrorMessage}
             formValues={formValues}
             isDeleting={isDeleting}
             isSubmitting={isSaving}
+            onAddCategory={(categoryName) => addOption("category", categoryName)}
+            onAddUnit={(unitName) => addOption("unit", unitName)}
             onCancel={() => router.push("/inventory")}
             onDelete={handleDelete}
+            onDeleteCategory={(categoryName) => deleteOption("category", categoryName)}
+            onDeleteUnit={(unitName) => deleteOption("unit", unitName)}
             onFieldChange={updateField}
             onSubmit={handleSubmit}
             submitLabel="Save Changes"
+            unitOptions={unitOptions}
           />
         ) : null}
       </div>

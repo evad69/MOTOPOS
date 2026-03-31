@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Card } from "@/components/Card";
 import { MetricCard } from "@/components/MetricCard";
 import { TopBar } from "@/components/TopBar";
+import { useAppContext } from "@/context/AppContext";
 import { SaleItem } from "@/database/db";
 import { getLowStockProducts } from "@/database/products";
 import {
@@ -74,7 +75,7 @@ function summarizeSaleItems(saleItems: SaleItem[]): string {
 }
 
 /** Loads the live dashboard metric values from IndexedDB. */
-function useDashboardMetrics() {
+function useDashboardMetrics(syncRefreshKey: number) {
   const [metrics, setMetrics] = useState<DashboardMetrics>(createInitialMetrics());
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -119,13 +120,13 @@ function useDashboardMetrics() {
       isCancelled = true;
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, []);
+  }, [syncRefreshKey]);
 
   return { metrics, errorMessage };
 }
 
 /** Loads the recent sales rows shown in the dashboard table. */
-function useRecentSalesRows() {
+function useRecentSalesRows(syncRefreshKey: number) {
   const [recentSalesRows, setRecentSalesRows] = useState<RecentSaleRow[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -172,7 +173,7 @@ function useRecentSalesRows() {
       isCancelled = true;
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, []);
+  }, [syncRefreshKey]);
 
   return { recentSalesRows, errorMessage };
 }
@@ -266,8 +267,10 @@ function RecentSalesTable({
 /** Renders the dashboard metrics, low-stock banner, and recent sales table. */
 export default function DashboardPage() {
   const router = useRouter();
-  const { metrics, errorMessage } = useDashboardMetrics();
-  const { recentSalesRows, errorMessage: recentSalesErrorMessage } = useRecentSalesRows();
+  const { lastSyncedAt } = useAppContext();
+  const syncRefreshKey = lastSyncedAt?.getTime() ?? 0;
+  const { metrics, errorMessage } = useDashboardMetrics(syncRefreshKey);
+  const { recentSalesRows, errorMessage: recentSalesErrorMessage } = useRecentSalesRows(syncRefreshKey);
 
   return (
     <>

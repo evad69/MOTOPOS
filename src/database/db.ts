@@ -1,5 +1,7 @@
 import Dexie, { Table } from "dexie";
 
+export type ProductOptionKind = "category" | "unit";
+
 export interface Product {
   id: string;
   sku: string;
@@ -58,6 +60,27 @@ export interface Supplier {
   updated_at: string;
 }
 
+export interface ProductOption {
+  id: string;
+  kind: ProductOptionKind;
+  name: string;
+  is_active: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export const DEFAULT_PRODUCT_CATEGORIES = [
+  "Filters",
+  "Electrical",
+  "Brakes",
+  "Drive",
+  "Lubricants",
+  "Engine",
+  "Accessories",
+] as const;
+
+export const DEFAULT_PRODUCT_UNITS = ["pcs", "set", "liter", "pair"] as const;
+
 /**
  * MotorPartsDatabase wraps IndexedDB via Dexie.
  * All offline-first data is stored here. Supabase syncs in background.
@@ -67,6 +90,7 @@ class MotorPartsDatabase extends Dexie {
   sales!: Table<Sale, string>;
   sale_items!: Table<SaleItem, string>;
   suppliers!: Table<Supplier, string>;
+  product_options!: Table<ProductOption, string>;
 
   constructor() {
     super("motorparts_pos");
@@ -76,6 +100,14 @@ class MotorPartsDatabase extends Dexie {
       sales: "id, sale_date, synced",
       sale_items: "id, sale_id, product_id",
       suppliers: "id, name",
+    });
+
+    this.version(2).stores({
+      products: "id, sku, name, category, brand, is_active, stock_qty, synced",
+      sales: "id, sale_date, synced",
+      sale_items: "id, sale_id, product_id",
+      suppliers: "id, name",
+      product_options: "id, kind, name, is_active",
     });
   }
 }

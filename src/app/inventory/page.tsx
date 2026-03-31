@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Image as ImageIcon, PencilLine } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
 import { StockBadge } from "@/components/StockBadge";
 import { TopBar } from "@/components/TopBar";
+import { useAppContext } from "@/context/AppContext";
 import { Product } from "@/database/db";
 import {
   getAllProducts,
@@ -128,7 +130,11 @@ function useDebouncedValue(value: string, delayMs: number): string {
 }
 
 /** Loads inventory data and refreshes it whenever the tab becomes visible again. */
-function useInventoryProducts(activeTab: InventoryTab, searchQuery: string) {
+function useInventoryProducts(
+  activeTab: InventoryTab,
+  searchQuery: string,
+  syncRefreshKey: number,
+) {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -167,7 +173,7 @@ function useInventoryProducts(activeTab: InventoryTab, searchQuery: string) {
       isCancelled = true;
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [activeTab, searchQuery]);
+  }, [activeTab, searchQuery, syncRefreshKey]);
 
   return { products, isLoading, errorMessage };
 }
@@ -222,22 +228,43 @@ function InventoryTableHeader() {
       className="grid text-text-secondary"
       style={{
         gap: SPACING.md,
-        gridTemplateColumns: "2fr 1.2fr 1.2fr 1fr 1.4fr",
+        gridTemplateColumns: "minmax(240px, 2.1fr) 1.1fr 1.1fr 0.8fr 1.2fr auto",
         paddingBottom: SPACING.sm,
         fontSize: fontSizes.caption,
         fontWeight: fontWeights.semibold,
       }}
     >
-      <span>Name</span>
+      <span>Product</span>
       <span>SKU</span>
       <span>Category</span>
       <span>Stock</span>
       <span>Status</span>
+      <span className="text-right">Edit</span>
     </div>
   );
 }
 
-/** Renders one clickable product row in the inventory list. */
+/** Renders a product thumbnail or placeholder beside the inventory name. */
+function InventoryProductImage({ imageUrl, productName }: { imageUrl?: string; productName: string }) {
+  return (
+    <div
+      className="flex shrink-0 items-center justify-center overflow-hidden border border-[var(--border)] bg-bg-surface text-text-secondary"
+      style={{ borderRadius: RADIUS.md, height: 48, width: 48 }}
+    >
+      {imageUrl ? (
+        <img
+          alt={productName}
+          className="h-full w-full object-cover"
+          src={imageUrl}
+        />
+      ) : (
+        <ImageIcon aria-hidden="true" size={18} />
+      )}
+    </div>
+  );
+}
+
+/** Renders one product row in the inventory list with thumbnail and edit action. */
 function InventoryTableRow({
   product,
   onSelectProduct,
@@ -246,20 +273,31 @@ function InventoryTableRow({
   onSelectProduct: (productId: string) => void;
 }) {
   return (
-    <button
-      className="grid w-full items-center border-0 bg-transparent text-left text-text-primary transition-colors duration-200 hover:bg-bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-      onClick={() => onSelectProduct(product.id)}
+    <div
+      className="grid items-center text-text-primary transition-colors duration-200 hover:bg-bg-surface"
       style={{
         gap: SPACING.md,
-        gridTemplateColumns: "2fr 1.2fr 1.2fr 1fr 1.4fr",
+        gridTemplateColumns: "minmax(240px, 2.1fr) 1.1fr 1.1fr 0.8fr 1.2fr auto",
         minHeight: LAYOUT.minClickTarget,
         borderRadius: RADIUS.md,
         paddingInline: SPACING.md,
         paddingBlock: SPACING.md,
       }}
-      type="button"
     >
-      <span style={{ fontWeight: fontWeights.semibold }}>{product.name}</span>
+      <div className="flex min-w-0 items-center" style={{ gap: SPACING.md }}>
+        <InventoryProductImage imageUrl={product.image_url} productName={product.name} />
+        <div className="min-w-0">
+          <p
+            className="truncate text-text-primary"
+            style={{ fontSize: fontSizes.body, fontWeight: fontWeights.semibold }}
+          >
+            {product.name}
+          </p>
+          <p className="truncate text-text-secondary" style={{ fontSize: fontSizes.caption }}>
+            {product.brand || "No brand"}
+          </p>
+        </div>
+      </div>
       <span className="text-text-secondary">{product.sku}</span>
       <span className="text-text-secondary">{product.category}</span>
       <span>{product.stock_qty}</span>
@@ -267,7 +305,15 @@ function InventoryTableRow({
         lowStockThreshold={product.low_stock_threshold}
         stockQty={product.stock_qty}
       />
-    </button>
+      <div className="flex justify-end">
+        <Button onClick={() => onSelectProduct(product.id)} variant="secondary">
+          <span className="inline-flex items-center justify-center" style={{ gap: SPACING.xs }}>
+            <PencilLine aria-hidden="true" size={16} />
+            Edit
+          </span>
+        </Button>
+      </div>
+    </div>
   );
 }
 
@@ -292,15 +338,19 @@ function InventoryTable({
 
   return (
     <Card>
-      <InventoryTableHeader />
-      <div style={{ marginTop: SPACING.sm }}>
-        {products.map((product) => (
-          <InventoryTableRow
-            key={product.id}
-            onSelectProduct={onSelectProduct}
-            product={product}
-          />
-        ))}
+      <div className="overflow-x-auto">
+        <div style={{ minWidth: 860 }}>
+          <InventoryTableHeader />
+          <div style={{ marginTop: SPACING.sm }}>
+            {products.map((product) => (
+              <InventoryTableRow
+                key={product.id}
+                onSelectProduct={onSelectProduct}
+                product={product}
+              />
+            ))}
+          </div>
+        </div>
       </div>
     </Card>
   );
@@ -333,15 +383,19 @@ function CategorySectionCard({
       </button>
       {isExpanded ? (
         <div style={{ borderTop: "1px solid var(--border)", padding: SPACING.lg }}>
-          <InventoryTableHeader />
-          <div style={{ marginTop: SPACING.sm }}>
-            {section.products.map((product) => (
-              <InventoryTableRow
-                key={product.id}
-                onSelectProduct={onSelectProduct}
-                product={product}
-              />
-            ))}
+          <div className="overflow-x-auto">
+            <div style={{ minWidth: 860 }}>
+              <InventoryTableHeader />
+              <div style={{ marginTop: SPACING.sm }}>
+                {section.products.map((product) => (
+                  <InventoryTableRow
+                    key={product.id}
+                    onSelectProduct={onSelectProduct}
+                    product={product}
+                  />
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       ) : null}
@@ -403,12 +457,15 @@ function CategorySectionList({
 /** Renders the inventory list page with tabs, search, and product table navigation. */
 export default function InventoryPage() {
   const router = useRouter();
+  const { lastSyncedAt } = useAppContext();
   const [activeTab, setActiveTab] = useState<InventoryTab>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedSearchQuery = useDebouncedValue(searchQuery, 200);
+  const syncRefreshKey = lastSyncedAt?.getTime() ?? 0;
   const { products, isLoading, errorMessage } = useInventoryProducts(
     activeTab,
     debouncedSearchQuery,
+    syncRefreshKey,
   );
 
   useEffect(() => {

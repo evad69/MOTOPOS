@@ -1,4 +1,5 @@
 import { generateId } from "@/utils/generateId";
+import { syncPendingRecords } from "@/services/sync";
 import { sanitizeText } from "@/utils/validateInput";
 import { db, Product } from "./db";
 
@@ -65,6 +66,7 @@ export async function insertProduct(
     created_at: currentTimestamp,
     updated_at: currentTimestamp,
   });
+  void syncPendingRecords().catch(() => undefined);
 
   return productId;
 }
@@ -73,12 +75,16 @@ export async function insertProduct(
 export async function updateProduct(
   productId: string,
   changes: Partial<Omit<Product, "id" | "created_at">>,
+  shouldSync = true,
 ): Promise<void> {
   await db.products.update(productId, {
     ...changes,
     synced: 0,
     updated_at: new Date().toISOString(),
   });
+  if (shouldSync) {
+    void syncPendingRecords().catch(() => undefined);
+  }
 }
 
 /** Soft-deletes a product so sale history can still reference it. */
@@ -97,5 +103,5 @@ export async function deductStock(
   }
 
   const updatedStockQuantity = Math.max(0, product.stock_qty - quantity);
-  await updateProduct(productId, { stock_qty: updatedStockQuantity });
+  await updateProduct(productId, { stock_qty: updatedStockQuantity }, false);
 }

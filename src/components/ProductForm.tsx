@@ -1,21 +1,16 @@
-import type { ChangeEvent, FormEventHandler, ReactNode } from "react";
-import { Image as ImageIcon } from "lucide-react";
+"use client";
+
+import { useState, type ChangeEvent, type FormEventHandler, type ReactNode } from "react";
+import { Image as ImageIcon, Trash2 } from "lucide-react";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
+import { ProductImageEditorDialog } from "@/components/ProductImageEditorDialog";
+import {
+  DEFAULT_PRODUCT_CATEGORIES,
+  DEFAULT_PRODUCT_UNITS,
+} from "@/database/db";
 import { LAYOUT, RADIUS, SPACING } from "@/theme/spacing";
 import { fontSizes, fontWeights } from "@/theme/typography";
-
-const categoryOptions = [
-  "Filters",
-  "Electrical",
-  "Brakes",
-  "Drive",
-  "Lubricants",
-  "Engine",
-  "Accessories",
-] as const;
-
-const unitOptions = ["pcs", "set", "liter", "pair"] as const;
 
 export interface ProductFormValues {
   name: string;
@@ -35,8 +30,14 @@ interface ProductFormProps {
   errorMessage: string | null;
   isSubmitting: boolean;
   submitLabel: string;
+  categoryOptions: string[];
+  unitOptions: string[];
   onCancel: () => void;
   onFieldChange: (fieldName: keyof ProductFormValues, value: string) => void;
+  onAddCategory: (categoryName: string) => Promise<string>;
+  onAddUnit: (unitName: string) => Promise<string>;
+  onDeleteCategory: (categoryName: string) => Promise<void>;
+  onDeleteUnit: (unitName: string) => Promise<void>;
   onSubmit: FormEventHandler<HTMLFormElement>;
   onDelete?: () => void;
   isDeleting?: boolean;
@@ -64,8 +65,8 @@ export function createInitialProductFormValues(): ProductFormValues {
     name: "",
     brand: "",
     sku: "",
-    category: categoryOptions[0],
-    unit: unitOptions[0],
+    category: DEFAULT_PRODUCT_CATEGORIES[0],
+    unit: DEFAULT_PRODUCT_UNITS[0],
     sellingPrice: "",
     costPrice: "",
     stockQty: "0",
@@ -157,6 +158,152 @@ function SelectField({ id, label, value, options, onChange }: SelectFieldProps) 
   );
 }
 
+/** Renders inline add/delete controls for category and unit option catalogs. */
+function ManagedOptionField({
+  id,
+  label,
+  value,
+  options,
+  onChange,
+  onAddOption,
+  onDeleteOption,
+}: {
+  id: string;
+  label: string;
+  value: string;
+  options: string[];
+  onChange: (value: string) => void;
+  onAddOption: (optionName: string) => Promise<string>;
+  onDeleteOption: (optionName: string) => Promise<void>;
+}) {
+  const [draftOptionName, setDraftOptionName] = useState("");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isMutating, setIsMutating] = useState(false);
+
+  async function handleAddOption() {
+    setIsMutating(true);
+    setErrorMessage(null);
+
+    try {
+      const savedOptionName = await onAddOption(draftOptionName);
+      onChange(savedOptionName);
+      setDraftOptionName("");
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : `Unable to add that ${label.toLowerCase()} right now.`,
+      );
+    } finally {
+      setIsMutating(false);
+    }
+  }
+
+  async function handleDeleteOption(optionName: string) {
+    if (options.length <= 1) {
+      setErrorMessage(`At least one ${label.toLowerCase()} must remain available.`);
+      return;
+    }
+
+    if (!window.confirm(`Delete "${optionName}" from the ${label.toLowerCase()} list?`)) {
+      return;
+    }
+
+    setIsMutating(true);
+    setErrorMessage(null);
+
+    try {
+      await onDeleteOption(optionName);
+      if (value === optionName) {
+        const nextSelectedOption = options.find((option) => option !== optionName);
+        if (nextSelectedOption) {
+          onChange(nextSelectedOption);
+        }
+      }
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : `Unable to delete that ${label.toLowerCase()} right now.`,
+      );
+    } finally {
+      setIsMutating(false);
+    }
+  }
+
+  return (
+    <div className="flex flex-col" style={{ gap: SPACING.sm }}>
+      <SelectField id={id} label={label} onChange={onChange} options={options} value={value} />
+      <div className="flex flex-col sm:flex-row" style={{ gap: SPACING.sm }}>
+        <input
+          className="w-full border border-[var(--border)] bg-bg-primary text-text-primary outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          onChange={(event) => setDraftOptionName(event.target.value)}
+          placeholder={`Add new ${label.toLowerCase()}`}
+          style={{
+            minHeight: LAYOUT.minClickTarget,
+            borderRadius: RADIUS.md,
+            paddingInline: SPACING.md,
+            paddingBlock: SPACING.sm,
+            fontSize: fontSizes.body,
+          }}
+          type="text"
+          value={draftOptionName}
+        />
+        <Button
+          disabled={!draftOptionName.trim().length || isMutating}
+          onClick={handleAddOption}
+          type="button"
+          variant="secondary"
+        >
+          Add {label}
+        </Button>
+      </div>
+      <div className="flex flex-wrap" style={{ gap: SPACING.sm }}>
+        {options.map((optionName) => {
+          const isSelected = optionName === value;
+
+          return (
+            <div
+              className="inline-flex items-center overflow-hidden border border-[var(--border)]"
+              key={optionName}
+              style={{
+                borderRadius: RADIUS.full,
+                backgroundColor: isSelected ? "var(--bg-surface)" : "var(--bg-primary)",
+              }}
+            >
+              <button
+                className="bg-transparent text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                onClick={() => onChange(optionName)}
+                style={{
+                  minHeight: 36,
+                  paddingInline: SPACING.md,
+                  fontSize: fontSizes.caption,
+                  fontWeight: isSelected ? fontWeights.semibold : fontWeights.medium,
+                }}
+                type="button"
+              >
+                {optionName}
+              </button>
+              <button
+                aria-label={`Delete ${optionName}`}
+                className="inline-flex items-center justify-center border-l border-[var(--border)] bg-transparent text-text-secondary transition-colors duration-200 hover:bg-bg-surface hover:text-danger focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                onClick={() => void handleDeleteOption(optionName)}
+                style={{ minHeight: 36, width: 36 }}
+                type="button"
+              >
+                <Trash2 aria-hidden="true" size={14} />
+              </button>
+            </div>
+          );
+        })}
+      </div>
+      {errorMessage ? (
+        <p className="text-danger" style={{ fontSize: fontSizes.caption }}>
+          {errorMessage}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
 /** Renders the shared image preview and upload controls for product forms. */
 function ProductImageField({
   imageUrl,
@@ -165,6 +312,9 @@ function ProductImageField({
   imageUrl: string;
   onChange: (value: string) => void;
 }) {
+  const [editorImageUrl, setEditorImageUrl] = useState<string | null>(null);
+  const [isEditorOpen, setIsEditorOpen] = useState(false);
+
   async function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     event.target.value = "";
@@ -175,10 +325,20 @@ function ProductImageField({
 
     try {
       const nextImageUrl = await readProductImageFile(file);
-      onChange(nextImageUrl);
+      setEditorImageUrl(nextImageUrl);
+      setIsEditorOpen(true);
     } catch {
       // Keep the form stable if the browser cannot read the selected file.
     }
+  }
+
+  function openEditorForCurrentImage() {
+    if (!imageUrl) {
+      return;
+    }
+
+    setEditorImageUrl(imageUrl);
+    setIsEditorOpen(true);
   }
 
   return (
@@ -235,12 +395,27 @@ function ProductImageField({
             type="file"
           />
           {imageUrl ? (
-            <Button onClick={() => onChange("")} type="button" variant="secondary">
-              Remove Image
-            </Button>
+            <>
+              <Button onClick={openEditorForCurrentImage} type="button" variant="secondary">
+                Adjust Image
+              </Button>
+              <Button onClick={() => onChange("")} type="button" variant="secondary">
+                Remove Image
+              </Button>
+            </>
           ) : null}
         </div>
       </div>
+      <ProductImageEditorDialog
+        imageUrl={editorImageUrl}
+        isOpen={isEditorOpen}
+        onClose={() => setIsEditorOpen(false)}
+        onSave={(nextImageUrl) => {
+          onChange(nextImageUrl);
+          setEditorImageUrl(nextImageUrl);
+          setIsEditorOpen(false);
+        }}
+      />
     </div>
   );
 }
@@ -251,8 +426,14 @@ export function ProductForm({
   errorMessage,
   isSubmitting,
   submitLabel,
+  categoryOptions,
+  unitOptions,
   onCancel,
   onFieldChange,
+  onAddCategory,
+  onAddUnit,
+  onDeleteCategory,
+  onDeleteUnit,
   onSubmit,
   onDelete,
   isDeleting = false,
@@ -267,8 +448,24 @@ export function ProductForm({
           <TextField id="name" label="Name" onChange={(value) => onFieldChange("name", value)} value={formValues.name} />
           <TextField id="brand" label="Brand" onChange={(value) => onFieldChange("brand", value)} value={formValues.brand} />
           <TextField id="sku" label="SKU" onChange={(value) => onFieldChange("sku", value)} value={formValues.sku} />
-          <SelectField id="category" label="Category" onChange={(value) => onFieldChange("category", value)} options={categoryOptions} value={formValues.category} />
-          <SelectField id="unit" label="Unit" onChange={(value) => onFieldChange("unit", value)} options={unitOptions} value={formValues.unit} />
+          <ManagedOptionField
+            id="category"
+            label="Category"
+            onAddOption={onAddCategory}
+            onChange={(value) => onFieldChange("category", value)}
+            onDeleteOption={onDeleteCategory}
+            options={categoryOptions}
+            value={formValues.category}
+          />
+          <ManagedOptionField
+            id="unit"
+            label="Unit"
+            onAddOption={onAddUnit}
+            onChange={(value) => onFieldChange("unit", value)}
+            onDeleteOption={onDeleteUnit}
+            options={unitOptions}
+            value={formValues.unit}
+          />
           <TextField id="selling-price" label="Selling Price" onChange={(value) => onFieldChange("sellingPrice", value)} type="number" value={formValues.sellingPrice} />
           <TextField id="cost-price" label="Cost Price" onChange={(value) => onFieldChange("costPrice", value)} type="number" value={formValues.costPrice} />
           <TextField id="stock-qty" label="Stock Qty" onChange={(value) => onFieldChange("stockQty", value)} type="number" value={formValues.stockQty} />

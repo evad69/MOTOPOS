@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
 import { TopBar } from "@/components/TopBar";
+import { useAppContext } from "@/context/AppContext";
 import { Sale, SaleItem } from "@/database/db";
 import { getRecentSales, getSaleItems } from "@/database/sales";
 import { LAYOUT, RADIUS, SPACING } from "@/theme/spacing";
@@ -32,7 +33,7 @@ function formatPaymentMethodLabel(paymentMethod: string): string {
 }
 
 /** Loads the selected sale record and its line items for the detail page. */
-function useSaleDetail(saleId: string) {
+function useSaleDetail(saleId: string, syncRefreshKey: number) {
   const [saleDetailState, setSaleDetailState] = useState<SaleDetailState | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -71,7 +72,7 @@ function useSaleDetail(saleId: string) {
     return () => {
       isCancelled = true;
     };
-  }, [saleId]);
+  }, [saleId, syncRefreshKey]);
 
   return { saleDetailState, errorMessage, isLoading };
 }
@@ -124,7 +125,9 @@ function SaleDetailTable({ saleItems }: { saleItems: SaleItem[] }) {
 export default function HistoryDetailPage() {
   const params = useParams<{ id: string }>();
   const saleId = Array.isArray(params.id) ? params.id[0] : params.id;
-  const { saleDetailState, errorMessage, isLoading } = useSaleDetail(saleId);
+  const { lastSyncedAt } = useAppContext();
+  const syncRefreshKey = lastSyncedAt?.getTime() ?? 0;
+  const { saleDetailState, errorMessage, isLoading } = useSaleDetail(saleId, syncRefreshKey);
 
   return (
     <>

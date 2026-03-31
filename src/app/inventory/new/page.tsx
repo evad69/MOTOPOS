@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   ProductForm,
@@ -10,6 +10,7 @@ import {
 import { TopBar } from "@/components/TopBar";
 import { Product } from "@/database/db";
 import { insertProduct } from "@/database/products";
+import { useProductOptions } from "@/hooks/useProductOptions";
 import { LAYOUT, SPACING } from "@/theme/spacing";
 import { sanitizeText, validateProductForm } from "@/utils/validateInput";
 
@@ -43,6 +44,34 @@ export default function NewInventoryItemPage() {
   const [formValues, setFormValues] = useState(createInitialProductFormValues());
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const {
+    categoryOptions,
+    unitOptions,
+    errorMessage: optionsErrorMessage,
+    addOption,
+    deleteOption,
+  } = useProductOptions();
+
+  useEffect(() => {
+    setFormValues((previousValues) => {
+      const nextCategory = categoryOptions.includes(previousValues.category)
+        ? previousValues.category
+        : categoryOptions[0];
+      const nextUnit = unitOptions.includes(previousValues.unit)
+        ? previousValues.unit
+        : unitOptions[0];
+
+      if (nextCategory === previousValues.category && nextUnit === previousValues.unit) {
+        return previousValues;
+      }
+
+      return {
+        ...previousValues,
+        category: nextCategory,
+        unit: nextUnit,
+      };
+    });
+  }, [categoryOptions, unitOptions]);
 
   function updateField(fieldName: keyof ProductFormValues, value: string) {
     setFormValues((previousValues) => ({ ...previousValues, [fieldName]: value }));
@@ -73,13 +102,19 @@ export default function NewInventoryItemPage() {
       <TopBar title="Add Product" />
       <div style={{ margin: "0 auto", maxWidth: LAYOUT.maxContentWidth, padding: SPACING.xl }}>
         <ProductForm
-          errorMessage={errorMessage}
+          categoryOptions={categoryOptions}
+          errorMessage={errorMessage ?? optionsErrorMessage}
           formValues={formValues}
           isSubmitting={isSaving}
+          onAddCategory={(categoryName) => addOption("category", categoryName)}
+          onAddUnit={(unitName) => addOption("unit", unitName)}
           onCancel={() => router.back()}
+          onDeleteCategory={(categoryName) => deleteOption("category", categoryName)}
+          onDeleteUnit={(unitName) => deleteOption("unit", unitName)}
           onFieldChange={updateField}
           onSubmit={handleSubmit}
           submitLabel="Save Product"
+          unitOptions={unitOptions}
         />
       </div>
     </>

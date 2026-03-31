@@ -63,6 +63,18 @@ function createOnlineHandler(
   };
 }
 
+/** Creates a visibility handler so returning to the app refreshes the local mirror. */
+function createVisibilityHandler(
+  setIsSyncing: React.Dispatch<React.SetStateAction<boolean>>,
+  setLastSyncedAt: React.Dispatch<React.SetStateAction<Date | null>>,
+): () => void {
+  return () => {
+    if (document.visibilityState === "visible") {
+      void runTrackedSync(setIsSyncing, setLastSyncedAt);
+    }
+  };
+}
+
 /** Registers the sync listener on mount and triggers a sync on online events. */
 export function useSync(): UseSyncValue {
   const [isSyncing, setIsSyncing] = useState(false);
@@ -73,7 +85,9 @@ export function useSync(): UseSyncValue {
     const unregisterSyncListener = registerSyncListener();
     const unsubscribePendingSync = subscribeToPendingSync(setHasPendingSync);
     const handleOnline = createOnlineHandler(setIsSyncing, setLastSyncedAt);
+    const handleVisibilityChange = createVisibilityHandler(setIsSyncing, setLastSyncedAt);
     window.addEventListener("online", handleOnline);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     if (navigator.onLine) {
       void runTrackedSync(setIsSyncing, setLastSyncedAt);
@@ -83,6 +97,7 @@ export function useSync(): UseSyncValue {
       unregisterSyncListener();
       unsubscribePendingSync();
       window.removeEventListener("online", handleOnline);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, []);
 

@@ -1,0 +1,23 @@
+
+> motorparts-pos-web@0.1.0 dev
+> next dev
+
+  ▲ Next.js 14.2.35
+  - Local:        http://localhost:3001
+  - Environments: .env.local
+
+ ✓ Starting...
+> [PWA] PWA support is disabled
+> [PWA] PWA support is disabled
+ ✓ Ready in 6.4s
+ ○ Compiling /inventory ...
+ ✓ Compiled /inventory in 11.7s (696 modules)
+ GET /inventory 200 in 13018ms
+ ✓ Compiled in 1599ms (341 modules)
+ ○ Compiling /inventory/new ...
+ ✓ Compiled /inventory/new in 3.1s (700 modules)
+ GET /inventory 200 in 2484ms
+ ○ Compiling /favicon.ico ...
+ ✓ Compiled /favicon.ico in 3.2s (397 modules)
+ GET /favicon.ico 200 in 3894ms
+ GET /inventory/new 200 in 474ms

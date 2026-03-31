@@ -5,6 +5,7 @@ import { endOfMonth, endOfWeek, format, startOfMonth, startOfWeek } from "date-f
 import { useRouter } from "next/navigation";
 import { Card } from "@/components/Card";
 import { TopBar } from "@/components/TopBar";
+import { useAppContext } from "@/context/AppContext";
 import { getSaleItems, getSalesByDateRange } from "@/database/sales";
 import { LAYOUT, RADIUS, SPACING } from "@/theme/spacing";
 import { fontSizes, fontWeights } from "@/theme/typography";
@@ -90,6 +91,7 @@ function useHistorySales(
   filterPreset: HistoryFilterPreset,
   customStartDate: string,
   customEndDate: string,
+  syncRefreshKey: number,
 ) {
   const [historySalesData, setHistorySalesData] = useState<HistorySalesData>({
     salesRows: [],
@@ -150,7 +152,7 @@ function useHistorySales(
       isCancelled = true;
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [activeDateRange.endDate, activeDateRange.startDate]);
+  }, [activeDateRange.endDate, activeDateRange.startDate, syncRefreshKey]);
 
   return { historySalesData, errorMessage };
 }
@@ -284,13 +286,16 @@ function HistorySalesTable({
 /** Renders the sale history page with date filters, revenue summary, and sales table. */
 export default function HistoryPage() {
   const router = useRouter();
+  const { lastSyncedAt } = useAppContext();
   const [filterPreset, setFilterPreset] = useState<HistoryFilterPreset>("today");
   const [customStartDate, setCustomStartDate] = useState(getTodayDateValue());
   const [customEndDate, setCustomEndDate] = useState(getTodayDateValue());
+  const syncRefreshKey = lastSyncedAt?.getTime() ?? 0;
   const { historySalesData, errorMessage } = useHistorySales(
     filterPreset,
     customStartDate,
     customEndDate,
+    syncRefreshKey,
   );
 
   return (
