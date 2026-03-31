@@ -21,6 +21,10 @@ interface ReceiptDataState {
   saleItems: SaleItem[];
 }
 
+function shouldShowCashSummary(sale: Sale): boolean {
+  return sale.payment_method === "cash" && typeof sale.cash_received === "number";
+}
+
 /** Converts a stored payment method value into a human-readable receipt label. */
 function formatPaymentMethodLabel(paymentMethod: string): string {
   if (paymentMethod === "gcash") {
@@ -85,6 +89,8 @@ function useReceiptData(saleId: string | null, isVisible: boolean) {
 
 /** Renders the receipt line items and totals for a completed sale. */
 function ReceiptBody({ sale, saleItems }: ReceiptDataState) {
+  const showCashSummary = shouldShowCashSummary(sale);
+
   return (
     <div className="flex flex-col" style={{ gap: SPACING.lg }}>
       <div className="grid grid-cols-2" style={{ gap: SPACING.md }}>
@@ -167,6 +173,38 @@ function ReceiptBody({ sale, saleItems }: ReceiptDataState) {
           {formatCurrency(sale.total_amount)}
         </span>
       </div>
+      {showCashSummary ? (
+        <>
+          <div className="flex items-center justify-between" style={{ gap: SPACING.md }}>
+            <span
+              className="text-text-secondary"
+              style={{ fontSize: fontSizes.section, fontWeight: fontWeights.medium }}
+            >
+              Cash Received
+            </span>
+            <span
+              className="text-text-primary"
+              style={{ fontSize: fontSizes.section, fontWeight: fontWeights.semibold }}
+            >
+              {formatCurrency(sale.cash_received ?? 0)}
+            </span>
+          </div>
+          <div className="flex items-center justify-between" style={{ gap: SPACING.md }}>
+            <span
+              className="text-text-secondary"
+              style={{ fontSize: fontSizes.section, fontWeight: fontWeights.medium }}
+            >
+              Change
+            </span>
+            <span
+              className="text-text-primary"
+              style={{ fontSize: fontSizes.section, fontWeight: fontWeights.semibold }}
+            >
+              {formatCurrency(sale.change_amount ?? 0)}
+            </span>
+          </div>
+        </>
+      ) : null}
     </div>
   );
 }

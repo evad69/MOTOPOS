@@ -31,10 +31,14 @@ interface SaleProductCardProps {
 }
 
 interface CartPanelProps {
+  cashChangeAmount: number;
+  cashReceivedInput: string;
   cartItems: CartItem[];
   cartTotal: number;
   checkoutError: string | null;
+  isCashAmountInvalid: boolean;
   isProcessing: boolean;
+  onCashReceivedChange: (value: string) => void;
   onDecreaseQuantity: (productId: string, currentQuantity: number) => void;
   onCharge: () => void;
   onIncreaseQuantity: (productId: string, currentQuantity: number) => void;
@@ -80,6 +84,21 @@ function useTransientMessage(durationMs: number) {
   }, [durationMs, message]);
 
   return { message, showMessage: setMessage };
+}
+
+/** Parses the cash tendered input into a positive currency value when possible. */
+function parseTenderedAmount(value: string): number | null {
+  const trimmedValue = value.trim();
+  if (!trimmedValue.length) {
+    return null;
+  }
+
+  const parsedValue = Number(trimmedValue);
+  if (!Number.isFinite(parsedValue) || parsedValue < 0) {
+    return null;
+  }
+
+  return parsedValue;
 }
 
 /** Loads sellable products for the New Sale browser using the current search query. */
@@ -465,10 +484,14 @@ function CartItemRow({
 
 /** Renders the right-side cart summary panel for the New Sale page. */
 function CartPanel({
+  cashChangeAmount,
+  cashReceivedInput,
   cartItems,
   cartTotal,
   checkoutError,
+  isCashAmountInvalid,
   isProcessing,
+  onCashReceivedChange,
   onDecreaseQuantity,
   onCharge,
   onIncreaseQuantity,
@@ -477,6 +500,7 @@ function CartPanel({
   selectedPaymentMethod,
 }: CartPanelProps) {
   const hasItems = cartItems.length > 0;
+  const shouldShowCashTender = selectedPaymentMethod === "cash";
 
   return (
     <Card className="h-full">
@@ -522,9 +546,79 @@ function CartPanel({
               selectedPaymentMethod={selectedPaymentMethod}
             />
           </div>
+          {shouldShowCashTender ? (
+            <div className="flex flex-col" style={{ gap: SPACING.sm, marginBottom: SPACING.lg }}>
+              <label className="block">
+                <span
+                  className="block text-text-secondary"
+                  style={{
+                    marginBottom: SPACING.xs,
+                    fontSize: fontSizes.caption,
+                    fontWeight: fontWeights.semibold,
+                  }}
+                >
+                  Cash Received
+                </span>
+                <input
+                  className="w-full border border-[var(--border)] bg-bg-primary text-text-primary outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                  inputMode="decimal"
+                  min="0"
+                  onChange={(event) => onCashReceivedChange(event.target.value)}
+                  placeholder="0.00"
+                  step="0.01"
+                  style={{
+                    minHeight: LAYOUT.minClickTarget,
+                    borderRadius: RADIUS.md,
+                    paddingInline: SPACING.md,
+                    paddingBlock: SPACING.sm,
+                    fontSize: fontSizes.body,
+                  }}
+                  type="number"
+                  value={cashReceivedInput}
+                />
+              </label>
+              <div
+                className="flex items-center justify-between border border-[var(--border)] bg-bg-surface"
+                style={{
+                  minHeight: LAYOUT.minClickTarget,
+                  borderRadius: RADIUS.md,
+                  paddingInline: SPACING.md,
+                  paddingBlock: SPACING.sm,
+                }}
+              >
+                <span
+                  className="text-text-secondary"
+                  style={{ fontSize: fontSizes.caption, fontWeight: fontWeights.semibold }}
+                >
+                  Change
+                </span>
+                <span
+                  className="text-text-primary"
+                  style={{ fontSize: fontSizes.section, fontWeight: fontWeights.semibold }}
+                >
+                  {formatCurrency(cashChangeAmount)}
+                </span>
+              </div>
+              <p className="text-text-secondary" style={{ fontSize: fontSizes.caption }}>
+                Enter the amount handed over by the customer before charging.
+              </p>
+            </div>
+          ) : null}
           {checkoutError ? (
             <p className="text-danger" style={{ fontSize: fontSizes.body, fontWeight: fontWeights.medium, marginBottom: SPACING.lg }}>
               {checkoutError}
+            </p>
+          ) : null}
+          {!checkoutError && shouldShowCashTender && hasItems && isCashAmountInvalid ? (
+            <p
+              className="text-danger"
+              style={{
+                fontSize: fontSizes.body,
+                fontWeight: fontWeights.medium,
+                marginBottom: SPACING.lg,
+              }}
+            >
+              Received amount must cover the total due.
             </p>
           ) : null}
           <div className="flex items-end justify-between" style={{ gap: SPACING.md, marginBottom: SPACING.lg }}>
@@ -535,7 +629,12 @@ function CartPanel({
               {formatCurrency(cartTotal)}
             </span>
           </div>
-          <Button fullWidth onClick={onCharge} disabled={!hasItems || isProcessing} variant="navy">
+          <Button
+            fullWidth
+            onClick={onCharge}
+            disabled={!hasItems || isProcessing || (shouldShowCashTender && isCashAmountInvalid)}
+            variant="navy"
+          >
             <ChargeButtonContent
               cartTotal={cartTotal}
               hasItems={hasItems}
@@ -601,6 +700,7 @@ export default function NewSalePage() {
   const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod>("cash");
+  const [cashReceivedInput, setCashReceivedInput] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [completedSaleId, setCompletedSaleId] = useState<string | null>(null);
@@ -611,6 +711,15 @@ export default function NewSalePage() {
   const { message: toastMessage, showMessage: showToastMessage } = useTransientMessage(2500);
   const debouncedSearchQuery = useDebouncedValue(searchQuery, 200);
   const syncRefreshKey = lastSyncedAt?.getTime() ?? 0;
+  const parsedCashReceived = parseTenderedAmount(cashReceivedInput);
+  const cashChangeAmount =
+    selectedPaymentMethod === "cash" && parsedCashReceived !== null && parsedCashReceived >= cartTotal
+      ? parsedCashReceived - cartTotal
+      : 0;
+  const isCashAmountInvalid =
+    selectedPaymentMethod === "cash" &&
+    cartItems.length > 0 &&
+    (parsedCashReceived === null || parsedCashReceived < cartTotal);
   const { products, isLoading, errorMessage } = useSaleProducts(
     debouncedSearchQuery,
     refreshKey,
@@ -629,6 +738,7 @@ export default function NewSalePage() {
     setIsReceiptVisible(false);
     setCompletedSaleId(null);
     setSelectedPaymentMethod("cash");
+    setCashReceivedInput("");
   }
 
   function handleScannerClose() {
@@ -666,14 +776,30 @@ export default function NewSalePage() {
       if (!user?.id) {
         throw new Error("Owner session is missing. Please sign in again.");
       }
+
+      if (selectedPaymentMethod === "cash") {
+        if (parsedCashReceived === null) {
+          throw new Error("Enter the amount received from the customer.");
+        }
+
+        if (parsedCashReceived < cartTotal) {
+          throw new Error("Received amount must cover the total due.");
+        }
+      }
+
       const saleId = await completeSale(
-        { paymentMethod: selectedPaymentMethod },
+        {
+          paymentMethod: selectedPaymentMethod,
+          cashReceived: selectedPaymentMethod === "cash" ? parsedCashReceived ?? undefined : undefined,
+          changeAmount: selectedPaymentMethod === "cash" ? cashChangeAmount : undefined,
+        },
         cartItems,
         user.id,
       );
       clearCart();
       setCompletedSaleId(saleId);
       setIsReceiptVisible(true);
+      setCashReceivedInput("");
       setRefreshKey((previousValue) => previousValue + 1);
     } catch (error) {
       setCheckoutError(error instanceof Error ? error.message : "Checkout failed.");
@@ -715,15 +841,25 @@ export default function NewSalePage() {
             />
           </div>
           <CartPanel
+            cashChangeAmount={cashChangeAmount}
+            cashReceivedInput={cashReceivedInput}
             cartItems={cartItems}
             cartTotal={cartTotal}
             checkoutError={checkoutError}
+            isCashAmountInvalid={isCashAmountInvalid}
             isProcessing={isProcessing}
+            onCashReceivedChange={setCashReceivedInput}
             onDecreaseQuantity={decreaseCartQuantity}
             onCharge={handleCharge}
             onIncreaseQuantity={increaseCartQuantity}
             onRemoveItem={removeItemFromCart}
-            onSelectPaymentMethod={setSelectedPaymentMethod}
+            onSelectPaymentMethod={(paymentMethod) => {
+              setSelectedPaymentMethod(paymentMethod);
+              setCheckoutError(null);
+              if (paymentMethod !== "cash") {
+                setCashReceivedInput("");
+              }
+            }}
             selectedPaymentMethod={selectedPaymentMethod}
           />
         </div>

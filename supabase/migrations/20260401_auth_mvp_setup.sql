@@ -16,6 +16,8 @@ alter table public.sale_items enable row level security;
 alter table public.products add column if not exists owner_id uuid;
 alter table public.sales add column if not exists owner_id uuid;
 alter table public.sale_items add column if not exists owner_id uuid;
+alter table public.sales add column if not exists cash_received numeric(12, 2);
+alter table public.sales add column if not exists change_amount numeric(12, 2);
 
 alter table public.products alter column owner_id set default auth.uid();
 alter table public.sales alter column owner_id set default auth.uid();

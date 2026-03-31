@@ -28,6 +28,8 @@ export interface Sale {
   total_amount: number;
   discount_amount: number;
   payment_method: string;
+  cash_received?: number;
+  change_amount?: number;
   customer_name?: string;
   notes?: string;
   synced: number;

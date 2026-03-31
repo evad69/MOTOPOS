@@ -6,6 +6,8 @@ import { CartItem, db, Sale, SaleItem } from "./db";
 
 interface SaleInput {
   paymentMethod?: string;
+  cashReceived?: number;
+  changeAmount?: number;
   customerName?: string;
   notes?: string;
   discountAmount?: number;
@@ -112,6 +114,8 @@ function buildSaleRecord(
     total_amount: subtotalAmount - discountAmount,
     discount_amount: discountAmount,
     payment_method: sanitizeText(saleData.paymentMethod ?? "cash"),
+    cash_received: saleData.cashReceived,
+    change_amount: saleData.changeAmount,
     customer_name: saleData.customerName
       ? sanitizeText(saleData.customerName)
       : undefined,

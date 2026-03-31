@@ -19,6 +19,10 @@ interface SaleDetailState {
   saleItems: SaleItem[];
 }
 
+function shouldShowCashSummary(sale: Sale): boolean {
+  return sale.payment_method === "cash" && typeof sale.cash_received === "number";
+}
+
 /** Converts a stored payment method value into a readable sale-detail label. */
 function formatPaymentMethodLabel(paymentMethod: string): string {
   if (paymentMethod === "gcash") {
@@ -128,6 +132,7 @@ export default function HistoryDetailPage() {
   const { lastSyncedAt } = useAppContext();
   const syncRefreshKey = lastSyncedAt?.getTime() ?? 0;
   const { saleDetailState, errorMessage, isLoading } = useSaleDetail(saleId, syncRefreshKey);
+  const showCashSummary = saleDetailState ? shouldShowCashSummary(saleDetailState.sale) : false;
 
   return (
     <>
@@ -200,6 +205,38 @@ export default function HistoryDetailPage() {
                       {formatCurrency(saleDetailState.sale.total_amount)}
                     </span>
                   </div>
+                  {showCashSummary ? (
+                    <>
+                      <div className="flex items-center justify-between" style={{ gap: SPACING.md }}>
+                        <span
+                          className="text-text-secondary"
+                          style={{ fontSize: fontSizes.section, fontWeight: fontWeights.medium }}
+                        >
+                          Cash Received
+                        </span>
+                        <span
+                          className="text-text-primary"
+                          style={{ fontSize: fontSizes.section, fontWeight: fontWeights.semibold }}
+                        >
+                          {formatCurrency(saleDetailState.sale.cash_received ?? 0)}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between" style={{ gap: SPACING.md }}>
+                        <span
+                          className="text-text-secondary"
+                          style={{ fontSize: fontSizes.section, fontWeight: fontWeights.medium }}
+                        >
+                          Change
+                        </span>
+                        <span
+                          className="text-text-primary"
+                          style={{ fontSize: fontSizes.section, fontWeight: fontWeights.semibold }}
+                        >
+                          {formatCurrency(saleDetailState.sale.change_amount ?? 0)}
+                        </span>
+                      </div>
+                    </>
+                  ) : null}
                   <div className="flex justify-end" data-receipt-actions="true" style={{ gap: SPACING.md }}>
                     <Button onClick={() => window.print()} variant="navy">
                       Print Receipt
