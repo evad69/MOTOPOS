@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { BarcodeScannerDialog } from "@/components/BarcodeScannerDialog";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
 import { ReceiptModal } from "@/components/ReceiptModal";
 import { TopBar } from "@/components/TopBar";
 import { useAppContext } from "@/context/AppContext";
 import { CartItem, Product } from "@/database/db";
-import { getAllProducts, searchProducts } from "@/database/products";
+import { getAllProducts, getProductBySku, searchProducts } from "@/database/products";
 import { completeSale } from "@/database/sales";
 import { LAYOUT, RADIUS, SPACING } from "@/theme/spacing";
 import { fontSizes, fontWeights } from "@/theme/typography";
@@ -16,6 +17,8 @@ import { formatCurrency } from "@/utils/formatCurrency";
 type PaymentMethod = "cash" | "gcash" | "maya";
 
 interface ProductSearchToolbarProps {
+  barcodeErrorMessage: string | null;
+  onOpenScanner: () => void;
   searchQuery: string;
   onSearchChange: (value: string) => void;
 }
@@ -45,6 +48,10 @@ interface CartItemRowProps {
   onRemoveItem: (productId: string) => void;
 }
 
+interface ToastNoticeProps {
+  message: string | null;
+}
+
 /** Returns a debounced copy of a value to reduce product re-query frequency. */
 function useDebouncedValue(value: string, delayMs: number): string {
   const [debouncedValue, setDebouncedValue] = useState(value);
@@ -55,6 +62,22 @@ function useDebouncedValue(value: string, delayMs: number): string {
   }, [delayMs, value]);
 
   return debouncedValue;
+}
+
+/** Returns a short-lived message value for temporary notifications like toasts. */
+function useTransientMessage(durationMs: number) {
+  const [message, setMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!message) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => setMessage(null), durationMs);
+    return () => window.clearTimeout(timeoutId);
+  }, [durationMs, message]);
+
+  return { message, showMessage: setMessage };
 }
 
 /** Loads sellable products for the New Sale browser using the current search query. */
@@ -98,33 +121,65 @@ function useSaleProducts(searchQuery: string, refreshKey: number) {
   return { products, isLoading, errorMessage };
 }
 
-/** Renders the search field and barcode scan stub for the New Sale page. */
+/** Renders the search field, scanner action, and barcode feedback for the New Sale page. */
 function ProductSearchToolbar({
+  barcodeErrorMessage,
+  onOpenScanner,
   searchQuery,
   onSearchChange,
 }: ProductSearchToolbarProps) {
   return (
-    <div className="flex flex-col md:flex-row" style={{ gap: SPACING.md }}>
-      <label className="block flex-1">
-        <span className="sr-only">Search products for a new sale</span>
-        <input
-          className="w-full border border-[var(--border)] bg-bg-primary text-text-primary outline-none focus-visible:ring-2 focus-visible:ring-accent"
-          onChange={(event) => onSearchChange(event.target.value)}
-          placeholder="Search by product name, brand, or SKU"
-          style={{
-            minHeight: LAYOUT.minClickTarget,
-            borderRadius: RADIUS.md,
-            paddingInline: SPACING.md,
-            paddingBlock: SPACING.sm,
-            fontSize: fontSizes.body,
-          }}
-          type="search"
-          value={searchQuery}
-        />
-      </label>
-      <Button disabled variant="secondary">
-        Scan Barcode (Phase 11)
-      </Button>
+    <div className="flex flex-col" style={{ gap: SPACING.sm }}>
+      <div className="flex flex-col md:flex-row" style={{ gap: SPACING.md }}>
+        <label className="block flex-1">
+          <span className="sr-only">Search products for a new sale</span>
+          <input
+            className="w-full border border-[var(--border)] bg-bg-primary text-text-primary outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            onChange={(event) => onSearchChange(event.target.value)}
+            placeholder="Search by product name, brand, or SKU"
+            style={{
+              minHeight: LAYOUT.minClickTarget,
+              borderRadius: RADIUS.md,
+              paddingInline: SPACING.md,
+              paddingBlock: SPACING.sm,
+              fontSize: fontSizes.body,
+            }}
+            type="search"
+            value={searchQuery}
+          />
+        </label>
+        <Button onClick={onOpenScanner} variant="secondary">
+          Scan Barcode
+        </Button>
+      </div>
+      {barcodeErrorMessage ? (
+        <p className="text-danger" style={{ fontSize: fontSizes.body }}>
+          {barcodeErrorMessage}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
+/** Renders a brief success toast for barcode scan confirmation. */
+function ToastNotice({ message }: ToastNoticeProps) {
+  if (!message) {
+    return null;
+  }
+
+  return (
+    <div
+      className="fixed z-30 border border-[var(--success)] bg-bg-primary text-text-primary shadow-lg"
+      role="status"
+      style={{
+        top: SPACING.xl,
+        right: SPACING.xl,
+        borderRadius: RADIUS.md,
+        paddingInline: SPACING.lg,
+        paddingBlock: SPACING.md,
+      }}
+    >
+      {message}
     </div>
   );
 }
@@ -505,7 +560,10 @@ export default function NewSalePage() {
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [completedSaleId, setCompletedSaleId] = useState<string | null>(null);
   const [isReceiptVisible, setIsReceiptVisible] = useState(false);
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
+  const [barcodeErrorMessage, setBarcodeErrorMessage] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const { message: toastMessage, showMessage: showToastMessage } = useTransientMessage(2500);
   const debouncedSearchQuery = useDebouncedValue(searchQuery, 200);
   const { products, isLoading, errorMessage } = useSaleProducts(debouncedSearchQuery, refreshKey);
 
@@ -521,6 +579,33 @@ export default function NewSalePage() {
     setIsReceiptVisible(false);
     setCompletedSaleId(null);
     setSelectedPaymentMethod("cash");
+  }
+
+  function handleScannerClose() {
+    setIsScannerOpen(false);
+  }
+
+  function handleScannerOpen() {
+    setBarcodeErrorMessage(null);
+    setIsScannerOpen(true);
+  }
+
+  async function handleBarcodeScan(scannedValue: string) {
+    setIsScannerOpen(false);
+    setBarcodeErrorMessage(null);
+
+    try {
+      const matchedProduct = await getProductBySku(scannedValue);
+      if (!matchedProduct) {
+        setBarcodeErrorMessage(`No product matched barcode: ${scannedValue}`);
+        return;
+      }
+
+      addItemToCart(matchedProduct);
+      showToastMessage(`${matchedProduct.name} added to cart.`);
+    } catch {
+      setBarcodeErrorMessage("Unable to look up that barcode right now.");
+    }
   }
 
   async function handleCharge() {
@@ -545,6 +630,7 @@ export default function NewSalePage() {
 
   return (
     <>
+      <ToastNotice message={toastMessage} />
       <TopBar title="New Sale" />
       <div style={{ margin: "0 auto", maxWidth: LAYOUT.maxContentWidth, padding: SPACING.xl }}>
         <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]" style={{ gap: SPACING.lg }}>
@@ -559,7 +645,12 @@ export default function NewSalePage() {
                     Search available inventory and add items to the current cart.
                   </p>
                 </div>
-                <ProductSearchToolbar onSearchChange={setSearchQuery} searchQuery={searchQuery} />
+                <ProductSearchToolbar
+                  barcodeErrorMessage={barcodeErrorMessage}
+                  onOpenScanner={handleScannerOpen}
+                  onSearchChange={setSearchQuery}
+                  searchQuery={searchQuery}
+                />
               </div>
             </Card>
             <ProductBrowserPanel
@@ -587,6 +678,11 @@ export default function NewSalePage() {
         isVisible={isReceiptVisible}
         onClose={handleReceiptClose}
         saleId={completedSaleId}
+      />
+      <BarcodeScannerDialog
+        isOpen={isScannerOpen}
+        onClose={handleScannerClose}
+        onScan={handleBarcodeScan}
       />
     </>
   );

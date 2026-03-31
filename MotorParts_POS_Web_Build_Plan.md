@@ -70,7 +70,7 @@ Phase 7  — Dashboard                        [x] 4/4 steps complete
 Phase 8  — Sale History                     [x] 3/3 steps complete
 Phase 9  — Supabase Cloud Sync              [x] 4/4 steps complete
 Phase 10 — AI Assistant                     [x] 5/5 steps complete
-Phase 11 — Barcode Scanner                  [ ] 0/2 steps complete
+Phase 11 — Barcode Scanner                  [ ] 1/2 steps complete
 Phase 12 — PWA & Vercel Deployment          [ ] 0/3 steps complete
 Phase 13 — Polish & QA                      [ ] 0/4 steps complete
 ```
@@ -1767,7 +1767,7 @@ git commit --allow-empty -m "milestone(phase-10): AI assistant fully implemented
 
 ### Step 11.1 — Implement barcode scanning on the New Sale page
 
-- [ ] **Task:** Wire `html5-qrcode` to the scan button.
+- [x] **Task:** Wire `html5-qrcode` to the scan button.
 
 - The scan button opens a `<dialog>` (HTML native modal) containing the `Html5QrcodeScanner` component
 - On scan: close the dialog, call `getProductBySku(scannedValue)`
