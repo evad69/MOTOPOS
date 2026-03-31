@@ -2,28 +2,47 @@
 
 import { Moon, Sun } from "lucide-react";
 import { Button } from "@/components/Button";
+import { useAppContext } from "@/context/AppContext";
 import { RADIUS, LAYOUT, SPACING } from "@/theme/spacing";
 import { fontSizes, fontWeights } from "@/theme/typography";
-import { useTheme } from "@/hooks/useTheme";
 
 interface TopBarProps {
   title: string;
 }
 
-/** Returns the inline styles for the sync status dot. */
-function getSyncDotStyle(isPendingSync: boolean) {
+/** Returns the inline styles for the sync status dot size and shape. */
+function getSyncDotStyle() {
   return {
     width: SPACING.sm,
     height: SPACING.sm,
     borderRadius: RADIUS.full,
-    backgroundColor: isPendingSync ? "var(--warning)" : "var(--success)",
   };
+}
+
+/** Returns the color and animation classes for the sync status dot. */
+function getSyncDotClassName(isPendingSync: boolean, isSyncing: boolean): string {
+  return [
+    "block shrink-0",
+    isPendingSync ? "bg-warning" : "bg-success",
+    isSyncing ? "animate-pulse" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+}
+
+/** Returns the label shown beside the sync status dot. */
+function getSyncLabel(isPendingSync: boolean, isSyncing: boolean): string {
+  if (isSyncing) {
+    return "Syncing";
+  }
+
+  return isPendingSync ? "Pending" : "Synced";
 }
 
 /** Renders the top page bar with title, sync indicator, and theme toggle. */
 export function TopBar({ title }: TopBarProps) {
-  const { isDarkMode, toggleDarkMode } = useTheme();
-  const isPendingSync = false;
+  const { isDarkMode, toggleDarkMode, isSyncing, hasPendingSync } = useAppContext();
+  const syncLabel = getSyncLabel(hasPendingSync, isSyncing);
 
   return (
     <header
@@ -42,8 +61,12 @@ export function TopBar({ title }: TopBarProps) {
         </h1>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 text-sm text-text-secondary">
-            <span aria-hidden="true" style={getSyncDotStyle(isPendingSync)} />
-            <span>{isPendingSync ? "Pending" : "Synced"}</span>
+            <span
+              aria-hidden="true"
+              className={getSyncDotClassName(hasPendingSync, isSyncing)}
+              style={getSyncDotStyle()}
+            />
+            <span>{syncLabel}</span>
           </div>
           <Button
             aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}

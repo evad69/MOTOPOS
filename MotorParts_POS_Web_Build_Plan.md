@@ -68,7 +68,7 @@ Phase 5  — Inventory Management             [x] 5/5 steps complete
 Phase 6  — New Sale & Checkout              [x] 5/5 steps complete
 Phase 7  — Dashboard                        [x] 4/4 steps complete
 Phase 8  — Sale History                     [x] 3/3 steps complete
-Phase 9  — Supabase Cloud Sync              [ ] 2/4 steps complete
+Phase 9  — Supabase Cloud Sync              [ ] 3/4 steps complete
 Phase 10 — AI Assistant                     [ ] 0/5 steps complete
 Phase 11 — Barcode Scanner                  [ ] 0/2 steps complete
 Phase 12 — PWA & Vercel Deployment          [ ] 0/3 steps complete
@@ -1574,7 +1574,7 @@ git commit -m "feat(sync): implement background Supabase sync with online/offlin
 
 ### Step 9.3 — Add sync status dot to the TopBar
 
-- [ ] **Task:** Green = synced, orange = pending, animated pulse while syncing.
+- [x] **Task:** Green = synced, orange = pending, animated pulse while syncing.
 
 Pass `isSyncing` from `useSync()` via context and read it in `<TopBar />`. A green dot uses `bg-success`, orange uses `bg-warning`, and the pulsing animation uses Tailwind's `animate-pulse`.
 

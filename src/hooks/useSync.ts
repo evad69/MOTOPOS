@@ -1,11 +1,40 @@
 "use client";
 
+import { liveQuery } from "dexie";
 import { useEffect, useState } from "react";
+import { db } from "@/database/db";
 import { registerSyncListener, syncPendingRecords } from "@/services/sync";
 
 interface UseSyncValue {
   isSyncing: boolean;
   lastSyncedAt: Date | null;
+  hasPendingSync: boolean;
+}
+
+/** Returns whether IndexedDB currently contains any records waiting for sync. */
+async function hasPendingSyncRecords(): Promise<boolean> {
+  const [pendingProductCount, pendingSaleCount] = await Promise.all([
+    db.products.where("synced").equals(0).count(),
+    db.sales.where("synced").equals(0).count(),
+  ]);
+
+  return pendingProductCount > 0 || pendingSaleCount > 0;
+}
+
+/** Subscribes to Dexie changes and keeps the pending-sync flag current. */
+function subscribeToPendingSync(
+  setHasPendingSync: React.Dispatch<React.SetStateAction<boolean>>,
+): () => void {
+  const subscription = liveQuery(hasPendingSyncRecords).subscribe({
+    next: setHasPendingSync,
+    error: (error) => {
+      console.error("Pending sync subscription failed.", error);
+    },
+  });
+
+  return () => {
+    subscription.unsubscribe();
+  };
 }
 
 /** Runs a sync attempt and updates local hook state around the request. */
@@ -38,9 +67,11 @@ function createOnlineHandler(
 export function useSync(): UseSyncValue {
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSyncedAt, setLastSyncedAt] = useState<Date | null>(null);
+  const [hasPendingSync, setHasPendingSync] = useState(false);
 
   useEffect(() => {
     const unregisterSyncListener = registerSyncListener();
+    const unsubscribePendingSync = subscribeToPendingSync(setHasPendingSync);
     const handleOnline = createOnlineHandler(setIsSyncing, setLastSyncedAt);
     window.addEventListener("online", handleOnline);
 
@@ -50,9 +81,10 @@ export function useSync(): UseSyncValue {
 
     return () => {
       unregisterSyncListener();
+      unsubscribePendingSync();
       window.removeEventListener("online", handleOnline);
     };
   }, []);
 
-  return { isSyncing, lastSyncedAt };
+  return { isSyncing, lastSyncedAt, hasPendingSync };
 }

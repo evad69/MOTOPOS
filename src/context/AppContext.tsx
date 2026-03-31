@@ -15,6 +15,7 @@ interface AppContextValue {
   cartTotal: number;
   isSyncing: boolean;
   lastSyncedAt: Date | null;
+  hasPendingSync: boolean;
 }
 
 interface AppProviderProps {
