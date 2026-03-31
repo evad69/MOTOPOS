@@ -4,6 +4,7 @@ import type { CSSProperties } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  History,
   LayoutDashboard,
   MessageCircle,
   Package,
@@ -23,6 +24,7 @@ const navigationItems: NavigationItem[] = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/sale/new", label: "New Sale", icon: ShoppingCart },
   { href: "/inventory", label: "Inventory", icon: Package },
+  { href: "/history", label: "Sale History", icon: History },
   { href: "/ai", label: "AI Assistant", icon: MessageCircle },
 ];
 
