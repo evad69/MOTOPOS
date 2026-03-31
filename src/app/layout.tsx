@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Script from "next/script";
 import { AppProvider } from "@/context/AppContext";
 import { Sidebar } from "@/components/Sidebar";
 import "../styles/globals.css";
@@ -26,17 +25,6 @@ export default function RootLayout({
           </div>
         </AppProvider>
       </body>
-      <Script
-        id="service-worker-registration"
-        strategy="afterInteractive"
-        dangerouslySetInnerHTML={{
-          __html: `
-            if ('serviceWorker' in navigator) {
-              navigator.serviceWorker.register('/sw.js').catch(function () {});
-            }
-          `,
-        }}
-      />
     </html>
   );
 }

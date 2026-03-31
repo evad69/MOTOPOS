@@ -152,6 +152,18 @@ export function AppProvider({ children }: AppProviderProps) {
   const syncState = useSync();
   const contextValue = createContextValue(isDarkMode, toggleDarkMode, cartState, syncState);
 
+  useEffect(() => {
+    if (process.env.NODE_ENV !== "production") {
+      return;
+    }
+
+    if (!("serviceWorker" in navigator)) {
+      return;
+    }
+
+    void navigator.serviceWorker.register("/sw.js").catch(() => undefined);
+  }, []);
+
   return <AppContext.Provider value={contextValue}>{children}</AppContext.Provider>;
 }
 
