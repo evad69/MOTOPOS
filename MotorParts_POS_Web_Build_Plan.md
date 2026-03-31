@@ -69,7 +69,7 @@ Phase 6  — New Sale & Checkout              [x] 5/5 steps complete
 Phase 7  — Dashboard                        [x] 4/4 steps complete
 Phase 8  — Sale History                     [x] 3/3 steps complete
 Phase 9  — Supabase Cloud Sync              [x] 4/4 steps complete
-Phase 10 — AI Assistant                     [ ] 1/5 steps complete
+Phase 10 — AI Assistant                     [ ] 2/5 steps complete
 Phase 11 — Barcode Scanner                  [ ] 0/2 steps complete
 Phase 12 — PWA & Vercel Deployment          [ ] 0/3 steps complete
 Phase 13 — Polish & QA                      [ ] 0/4 steps complete
@@ -1633,7 +1633,7 @@ git commit -m "feat(ai): implement secure Gemini API route and context builder"
 
 ### Step 10.2 — Implement the useAI hook
 
-- [ ] **Task:** Manage chat state and API calls in a reusable hook.
+- [x] **Task:** Manage chat state and API calls in a reusable hook.
 
 **`src/hooks/useAI.ts`**
 ```ts
