@@ -69,7 +69,7 @@ Phase 6  — New Sale & Checkout              [x] 5/5 steps complete
 Phase 7  — Dashboard                        [x] 4/4 steps complete
 Phase 8  — Sale History                     [x] 3/3 steps complete
 Phase 9  — Supabase Cloud Sync              [x] 4/4 steps complete
-Phase 10 — AI Assistant                     [ ] 4/5 steps complete
+Phase 10 — AI Assistant                     [x] 5/5 steps complete
 Phase 11 — Barcode Scanner                  [ ] 0/2 steps complete
 Phase 12 — PWA & Vercel Deployment          [ ] 0/3 steps complete
 Phase 13 — Polish & QA                      [ ] 0/4 steps complete
@@ -1735,16 +1735,16 @@ git commit -m "feat(ai): add auto-generated greeting on first AI page load"
 
 ### Step 10.5 — Verify AI assistant end-to-end
 
-- [ ] **Task:** Test all AI scenarios.
+- [x] **Task:** Test all AI scenarios.
 
 Checklist:
-- [ ] Greeting appears with today's actual data in Filipino
-- [ ] "Kumusta ang benta ngayon?" returns today's sales in Filipino
-- [ ] "What are the low stock items?" returns real items from IndexedDB in English
-- [ ] Quick-prompt chips send the correct messages
-- [ ] Sending while offline shows the error message — no crash
-- [ ] Typing indicator appears while waiting for Gemini response
-- [ ] `GEMINI_API_KEY` is NOT visible in browser network requests or client-side JS bundles
+- [x] Greeting appears with today's actual data in Filipino
+- [x] "Kumusta ang benta ngayon?" returns today's sales in Filipino
+- [x] "What are the low stock items?" returns real items from IndexedDB in English
+- [x] Quick-prompt chips send the correct messages
+- [x] Sending while offline shows the error message — no crash
+- [x] Typing indicator appears while waiting for Gemini response
+- [x] `GEMINI_API_KEY` is NOT visible in browser network requests or client-side JS bundles
 
 > **Commit:**
 ```bash
