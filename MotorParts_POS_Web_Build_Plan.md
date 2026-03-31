@@ -71,7 +71,7 @@ Phase 8  — Sale History                     [x] 3/3 steps complete
 Phase 9  — Supabase Cloud Sync              [x] 4/4 steps complete
 Phase 10 — AI Assistant                     [x] 5/5 steps complete
 Phase 11 — Barcode Scanner                  [x] 2/2 steps complete
-Phase 12 — PWA & Vercel Deployment          [ ] 1/3 steps complete
+Phase 12 — PWA & Vercel Deployment          [ ] 2/3 steps complete
 Phase 13 — Polish & QA                      [ ] 0/4 steps complete
 ```
 
@@ -1866,7 +1866,7 @@ git commit -m "feat(pwa): configure next-pwa with manifest and service worker fo
 
 ### Step 12.2 — Configure Vercel deployment
 
-- [ ] **Task:** Connect the repository to Vercel and set environment variables.
+- [x] **Task:** Connect the repository to Vercel and set environment variables.
 
 1. Push the repository to GitHub.
 2. In Vercel: Import project → select the GitHub repo → Framework: Next.js.
