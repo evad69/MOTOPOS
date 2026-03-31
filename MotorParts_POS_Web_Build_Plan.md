@@ -69,7 +69,7 @@ Phase 6  — New Sale & Checkout              [x] 5/5 steps complete
 Phase 7  — Dashboard                        [x] 4/4 steps complete
 Phase 8  — Sale History                     [x] 3/3 steps complete
 Phase 9  — Supabase Cloud Sync              [x] 4/4 steps complete
-Phase 10 — AI Assistant                     [ ] 0/5 steps complete
+Phase 10 — AI Assistant                     [ ] 1/5 steps complete
 Phase 11 — Barcode Scanner                  [ ] 0/2 steps complete
 Phase 12 — PWA & Vercel Deployment          [ ] 0/3 steps complete
 Phase 13 — Polish & QA                      [ ] 0/4 steps complete
@@ -1617,7 +1617,7 @@ git commit --allow-empty -m "milestone(phase-9): Supabase sync fully implemented
 
 ### Step 10.1 — Implement the Gemini API route
 
-- [ ] **Task:** Create the secure server-side API route that calls Gemini.
+- [x] **Task:** Create the secure server-side API route that calls Gemini.
 
 `src/app/api/ai/chat/route.ts` — the route receives `{ userMessage, contextString }` in the request body, calls `askAI()`, and returns `{ reply }`. The `GEMINI_API_KEY` is only accessed here — never in client code.
 
