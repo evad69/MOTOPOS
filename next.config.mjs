@@ -2,7 +2,8 @@ import withPWAInit from "next-pwa";
 
 const withPWA = withPWAInit({
   dest: "public",
-  register: true,
+  buildExcludes: ["app-build-manifest.json"],
+  register: false,
   skipWaiting: true,
   disable: process.env.NODE_ENV === "development",
 });
