@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ChangeEvent, type FormEventHandler, type ReactNode } from "react";
-import { Image as ImageIcon, Trash2 } from "lucide-react";
+import { CircleHelp, Image as ImageIcon, Trash2 } from "lucide-react";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
 import { ProductImageEditorDialog } from "@/components/ProductImageEditorDialog";
@@ -47,6 +47,8 @@ interface TextFieldProps {
   id: string;
   label: string;
   type?: "text" | "number";
+  placeholder?: string;
+  tip?: string;
   value: string;
   onChange: (value: string) => void;
 }
@@ -54,6 +56,7 @@ interface TextFieldProps {
 interface SelectFieldProps {
   id: string;
   label: string;
+  tip?: string;
   value: string;
   options: readonly string[];
   onChange: (value: string) => void;
@@ -99,39 +102,72 @@ function FieldGroup({
   label,
   htmlFor,
   helper,
+  tip,
   children,
 }: {
   label: string;
   htmlFor: string;
   helper?: string;
+  tip?: string;
   children: ReactNode;
 }) {
   return (
-    <label className="block" htmlFor={htmlFor}>
-      <span
-        className="block text-text-secondary"
-        style={{ marginBottom: SPACING.xs, fontSize: fontSizes.caption }}
-      >
-        {label}
-      </span>
+    <div className="block">
+      <div className="flex items-center gap-2" style={{ marginBottom: SPACING.xs }}>
+        <label
+          className="block text-text-secondary"
+          htmlFor={htmlFor}
+          style={{ fontSize: fontSizes.caption }}
+        >
+          {label}
+        </label>
+        {tip ? (
+          <span className="group/tooltip relative inline-flex">
+            <span
+              aria-label={`${label} help`}
+              className="inline-flex h-5 w-5 items-center justify-center rounded-full text-text-secondary outline-none transition-colors duration-200 hover:bg-bg-surface hover:text-text-primary focus-visible:bg-bg-surface focus-visible:text-text-primary focus-visible:ring-2 focus-visible:ring-accent"
+              role="button"
+              tabIndex={0}
+            >
+              <CircleHelp aria-hidden="true" size={14} />
+            </span>
+            <span
+              className="pointer-events-none absolute left-0 top-full z-10 w-56 rounded-[12px] border border-[var(--border)] bg-bg-primary px-3 py-2 text-text-primary opacity-0 shadow-[0_16px_32px_var(--shadow)] transition-all duration-150 group-hover/tooltip:translate-y-1 group-hover/tooltip:opacity-100 group-focus-within/tooltip:translate-y-1 group-focus-within/tooltip:opacity-100"
+              role="tooltip"
+              style={{ fontSize: 12, lineHeight: 1.5, marginTop: SPACING.xs }}
+            >
+              {tip}
+            </span>
+          </span>
+        ) : null}
+      </div>
       {helper ? (
         <span className="block text-text-secondary" style={{ marginBottom: SPACING.xs, fontSize: 11 }}>
           {helper}
         </span>
       ) : null}
       {children}
-    </label>
+    </div>
   );
 }
 
 /** Renders a styled text or number input for the product form. */
-function TextField({ id, label, type = "text", value, onChange }: TextFieldProps) {
+function TextField({
+  id,
+  label,
+  type = "text",
+  placeholder,
+  tip,
+  value,
+  onChange,
+}: TextFieldProps) {
   return (
-    <FieldGroup htmlFor={id} label={label}>
+    <FieldGroup htmlFor={id} label={label} tip={tip}>
       <input
         className="w-full border border-[var(--border)] bg-bg-primary text-text-primary outline-none focus-visible:ring-2 focus-visible:ring-accent"
         id={id}
         onChange={(event) => onChange(event.target.value)}
+        placeholder={placeholder}
         style={{
           minHeight: LAYOUT.minClickTarget,
           borderRadius: RADIUS.md,
@@ -147,9 +183,9 @@ function TextField({ id, label, type = "text", value, onChange }: TextFieldProps
 }
 
 /** Renders a styled select field for the product form. */
-function SelectField({ id, label, value, options, onChange }: SelectFieldProps) {
+function SelectField({ id, label, tip, value, options, onChange }: SelectFieldProps) {
   return (
-    <FieldGroup htmlFor={id} label={label}>
+    <FieldGroup htmlFor={id} label={label} tip={tip}>
       <select
         className="w-full border border-[var(--border)] bg-bg-primary text-text-primary outline-none focus-visible:ring-2 focus-visible:ring-accent"
         id={id}
@@ -177,6 +213,8 @@ function SelectField({ id, label, value, options, onChange }: SelectFieldProps) 
 function ManagedOptionField({
   id,
   label,
+  selectTip,
+  draftPlaceholder,
   value,
   options,
   onChange,
@@ -185,6 +223,8 @@ function ManagedOptionField({
 }: {
   id: string;
   label: string;
+  selectTip: string;
+  draftPlaceholder: string;
   value: string;
   options: string[];
   onChange: (value: string) => void;
@@ -246,12 +286,19 @@ function ManagedOptionField({
 
   return (
     <div className="flex flex-col" style={{ gap: SPACING.sm }}>
-      <SelectField id={id} label={label} onChange={onChange} options={options} value={value} />
+      <SelectField
+        id={id}
+        label={label}
+        onChange={onChange}
+        options={options}
+        tip={selectTip}
+        value={value}
+      />
       <div className="flex flex-col sm:flex-row" style={{ gap: SPACING.sm }}>
         <input
           className="w-full border border-[var(--border)] bg-bg-primary text-text-primary outline-none focus-visible:ring-2 focus-visible:ring-accent"
           onChange={(event) => setDraftOptionName(event.target.value)}
-          placeholder={`Add new ${label.toLowerCase()}`}
+          placeholder={draftPlaceholder}
           style={{
             minHeight: LAYOUT.minClickTarget,
             borderRadius: RADIUS.md,
@@ -467,15 +514,68 @@ export function ProductForm({
               </p>
             </div>
             <div className="grid gap-4 md:grid-cols-2">
-              <TextField id="name" label="Name" onChange={(value) => onFieldChange("name", value)} value={formValues.name} />
-              <TextField id="brand" label="Brand" onChange={(value) => onFieldChange("brand", value)} value={formValues.brand} />
-              <TextField id="sku" label="SKU" onChange={(value) => onFieldChange("sku", value)} value={formValues.sku} />
+              <TextField
+                id="name"
+                label="Name"
+                onChange={(value) => onFieldChange("name", value)}
+                placeholder="e.g. NGK Spark Plug"
+                tip="The main product name shown in inventory, checkout, and receipts."
+                value={formValues.name}
+              />
+              <TextField
+                id="brand"
+                label="Brand"
+                onChange={(value) => onFieldChange("brand", value)}
+                placeholder="e.g. Yamaha, Honda, Bosch"
+                tip="Optional manufacturer or brand. This helps staff search faster."
+                value={formValues.brand}
+              />
+              <TextField
+                id="sku"
+                label="SKU"
+                onChange={(value) => onFieldChange("sku", value)}
+                placeholder="e.g. SP-001 or barcode value"
+                tip="Your internal stock code or the barcode text you want the scanner to match."
+                value={formValues.sku}
+              />
             </div>
             <div className="grid gap-4 md:grid-cols-2">
-              <TextField id="selling-price" label="Selling Price" onChange={(value) => onFieldChange("sellingPrice", value)} type="number" value={formValues.sellingPrice} />
-              <TextField id="cost-price" label="Cost Price" onChange={(value) => onFieldChange("costPrice", value)} type="number" value={formValues.costPrice} />
-              <TextField id="stock-qty" label="Stock Qty" onChange={(value) => onFieldChange("stockQty", value)} type="number" value={formValues.stockQty} />
-              <TextField id="low-stock-threshold" label="Low Stock Threshold" onChange={(value) => onFieldChange("lowStockThreshold", value)} type="number" value={formValues.lowStockThreshold} />
+              <TextField
+                id="selling-price"
+                label="Selling Price"
+                onChange={(value) => onFieldChange("sellingPrice", value)}
+                placeholder="e.g. 299.00"
+                tip="The retail price charged to customers at checkout."
+                type="number"
+                value={formValues.sellingPrice}
+              />
+              <TextField
+                id="cost-price"
+                label="Cost Price"
+                onChange={(value) => onFieldChange("costPrice", value)}
+                placeholder="e.g. 210.00"
+                tip="Optional buying cost for margin tracking and pricing decisions."
+                type="number"
+                value={formValues.costPrice}
+              />
+              <TextField
+                id="stock-qty"
+                label="Stock Qty"
+                onChange={(value) => onFieldChange("stockQty", value)}
+                placeholder="e.g. 24"
+                tip="How many units are currently available to sell."
+                type="number"
+                value={formValues.stockQty}
+              />
+              <TextField
+                id="low-stock-threshold"
+                label="Low Stock Threshold"
+                onChange={(value) => onFieldChange("lowStockThreshold", value)}
+                placeholder="e.g. 5"
+                tip="When stock reaches this number, the app flags the item as low stock."
+                type="number"
+                value={formValues.lowStockThreshold}
+              />
             </div>
             <ProductImageField
               imageUrl={formValues.imageUrl}
@@ -492,21 +592,25 @@ export function ProductForm({
               </p>
             </div>
             <ManagedOptionField
+              draftPlaceholder="e.g. Electrical"
               id="category"
               label="Category"
               onAddOption={onAddCategory}
               onChange={(value) => onFieldChange("category", value)}
               onDeleteOption={onDeleteCategory}
               options={categoryOptions}
+              selectTip="Used to group inventory items so browsing and filtering stays organized."
               value={formValues.category}
             />
             <ManagedOptionField
+              draftPlaceholder="e.g. box, set, bottle"
               id="unit"
               label="Unit"
               onAddOption={onAddUnit}
               onChange={(value) => onFieldChange("unit", value)}
               onDeleteOption={onDeleteUnit}
               options={unitOptions}
+              selectTip="Defines how stock is counted and displayed, such as pcs, set, or liter."
               value={formValues.unit}
             />
           </div>
