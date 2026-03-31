@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { AppProvider } from "@/context/AppContext";
-import { Sidebar } from "@/components/Sidebar";
+import { AppShell } from "@/components/AppShell";
+import { AuthProvider } from "@/context/AuthContext";
 import "../styles/globals.css";
 
 export const metadata: Metadata = {
@@ -18,12 +18,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="bg-bg-primary text-text-primary">
-        <AppProvider>
-          <div className="flex min-h-screen overflow-hidden bg-bg-primary text-text-primary">
-            <Sidebar />
-            <main className="flex-1 overflow-y-auto">{children}</main>
-          </div>
-        </AppProvider>
+        <AuthProvider>
+          <AppShell>{children}</AppShell>
+        </AuthProvider>
       </body>
     </html>
   );

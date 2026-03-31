@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 interface ChatMessage {
   role: "user" | "ai";
@@ -23,10 +24,16 @@ function createChatMessage(role: "user" | "ai", content: string): ChatMessage {
 }
 
 /** Returns the AI reply text from the server route or throws when the request fails. */
-async function requestAIReply(userMessage: string): Promise<string> {
+async function requestAIReply(
+  userMessage: string,
+  accessToken: string | undefined,
+): Promise<string> {
   const response = await fetch("/api/ai/chat", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+    },
     body: JSON.stringify({ userMessage }),
   });
   const responseBody = (await response.json()) as AIChatResponse;
@@ -39,6 +46,7 @@ async function requestAIReply(userMessage: string): Promise<string> {
 
 /** Manages AI chat messages, loading state, and server requests for the assistant UI. */
 export function useAI() {
+  const { session } = useAuth();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -61,12 +69,16 @@ export function useAI() {
     }
 
     try {
-      const reply = await requestAIReply(trimmedMessage);
+      const reply = await requestAIReply(trimmedMessage, session?.access_token);
       setMessages((previousMessages) => {
         return [...previousMessages, createChatMessage("ai", reply)];
       });
-    } catch {
-      setErrorMessage("Hindi makonekta sa AI. Subukan ulit.");
+    } catch (error) {
+      if (error instanceof Error && error.message === "Authentication required.") {
+        setErrorMessage("Your session expired. Sign in again to use the AI assistant.");
+      } else {
+        setErrorMessage("Hindi makonekta sa AI. Subukan ulit.");
+      }
     } finally {
       setIsLoading(false);
     }

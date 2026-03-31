@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useRef, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   History,
   LayoutDashboard,
+  LogOut,
   MessageCircle,
   Package,
   ShoppingCart,
@@ -13,6 +14,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useAppContext } from "@/context/AppContext";
+import { useAuth } from "@/context/AuthContext";
 import { LAYOUT, RADIUS, SPACING } from "@/theme/spacing";
 import { fontSizes, fontWeights } from "@/theme/typography";
 
@@ -73,8 +75,21 @@ function getNavigationLinkClassName(isActive: boolean, isMobile = false): string
 /** Renders the persistent navigation sidebar used across the app shell. */
 export function Sidebar() {
   const pathname = usePathname();
+  const [isSigningOut, setIsSigningOut] = useState(false);
   const { isMobileNavOpen, closeMobileNav } = useAppContext();
+  const { signOut, user } = useAuth();
   const previousPathnameRef = useRef(pathname);
+
+  async function handleSignOut() {
+    setIsSigningOut(true);
+    try {
+      await signOut();
+    } catch (error) {
+      console.error("Unable to sign out.", error);
+    } finally {
+      setIsSigningOut(false);
+    }
+  }
 
   useEffect(() => {
     if (previousPathnameRef.current !== pathname && isMobileNavOpen) {
@@ -144,6 +159,23 @@ export function Sidebar() {
             );
           })}
         </nav>
+        <div className="border-t border-white/10 p-2">
+          <div className="hidden px-3 pb-3 text-xs lg:block">
+            <div className="truncate font-medium text-white/80">{user?.email ?? "Signed in"}</div>
+            <div className="mt-1 text-white/45">Protected shop session</div>
+          </div>
+          <button
+            className="flex w-full items-center gap-3 rounded-[10px] px-3 py-3 text-left text-white/70 transition-colors duration-200 hover:bg-white/8 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 disabled:cursor-not-allowed disabled:opacity-60"
+            disabled={isSigningOut}
+            onClick={() => void handleSignOut()}
+            type="button"
+          >
+            <LogOut aria-hidden="true" size={18} />
+            <span className="hidden lg:inline">
+              {isSigningOut ? "Signing Out..." : "Sign Out"}
+            </span>
+          </button>
+        </div>
       </aside>
 
       <div
@@ -210,6 +242,21 @@ export function Sidebar() {
               );
             })}
           </nav>
+          <div className="border-t border-white/10 p-3">
+            <div className="mb-3 text-xs text-white/55">
+              <div className="truncate font-medium text-white/80">{user?.email ?? "Signed in"}</div>
+              <div className="mt-1">Protected shop session</div>
+            </div>
+            <button
+              className="flex min-h-[44px] w-full items-center gap-3 rounded-[10px] px-4 text-left text-white/80 transition-colors duration-200 hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 disabled:cursor-not-allowed disabled:opacity-60"
+              disabled={isSigningOut}
+              onClick={() => void handleSignOut()}
+              type="button"
+            >
+              <LogOut aria-hidden="true" size={18} />
+              <span>{isSigningOut ? "Signing Out..." : "Sign Out"}</span>
+            </button>
+          </div>
         </aside>
       </div>
     </>

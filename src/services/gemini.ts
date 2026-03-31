@@ -1,4 +1,4 @@
-import { supabase } from "@/services/supabase";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 interface SaleSummary {
   totalAmount: number;
@@ -47,9 +47,11 @@ function getDaysAgoIsoString(numberOfDays: number): string {
 }
 
 /** Returns today's sales total and transaction count from Supabase. */
-async function getTodaySalesSummaryFromSupabase(): Promise<SaleSummary> {
+async function getTodaySalesSummaryFromSupabase(
+  supabaseClient: SupabaseClient,
+): Promise<SaleSummary> {
   const { startOfToday, endOfToday } = getTodayDateRange();
-  const { data, error } = await supabase
+  const { data, error } = await supabaseClient
     .from("sales")
     .select("id, total_amount")
     .gte("sale_date", startOfToday)
@@ -66,8 +68,10 @@ async function getTodaySalesSummaryFromSupabase(): Promise<SaleSummary> {
 }
 
 /** Returns all active low-stock products from Supabase. */
-async function getLowStockProductsFromSupabase(): Promise<LowStockProduct[]> {
-  const { data, error } = await supabase
+async function getLowStockProductsFromSupabase(
+  supabaseClient: SupabaseClient,
+): Promise<LowStockProduct[]> {
+  const { data, error } = await supabaseClient
     .from("products")
     .select("name, stock_qty, low_stock_threshold")
     .eq("is_active", 1);
@@ -82,8 +86,11 @@ async function getLowStockProductsFromSupabase(): Promise<LowStockProduct[]> {
 }
 
 /** Returns the sale IDs created within the recent reporting window. */
-async function getRecentSaleIdsFromSupabase(numberOfDays: number): Promise<string[]> {
-  const { data, error } = await supabase
+async function getRecentSaleIdsFromSupabase(
+  supabaseClient: SupabaseClient,
+  numberOfDays: number,
+): Promise<string[]> {
+  const { data, error } = await supabaseClient
     .from("sales")
     .select("id")
     .gte("sale_date", getDaysAgoIsoString(numberOfDays));
@@ -96,12 +103,15 @@ async function getRecentSaleIdsFromSupabase(numberOfDays: number): Promise<strin
 }
 
 /** Returns recent sale items for the provided sale IDs. */
-async function getRecentSaleItemsFromSupabase(saleIds: string[]): Promise<RecentSaleItem[]> {
+async function getRecentSaleItemsFromSupabase(
+  supabaseClient: SupabaseClient,
+  saleIds: string[],
+): Promise<RecentSaleItem[]> {
   if (!saleIds.length) {
     return [];
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await supabaseClient
     .from("sale_items")
     .select("product_name, quantity")
     .in("sale_id", saleIds);
@@ -175,14 +185,14 @@ function buildContextString(
 }
 
 /** Returns the live shop-data context string from Supabase for the AI assistant. */
-export async function buildContext(): Promise<string> {
+export async function buildContext(supabaseClient: SupabaseClient): Promise<string> {
   try {
     const [saleSummary, lowStockProducts, recentSaleIds] = await Promise.all([
-      getTodaySalesSummaryFromSupabase(),
-      getLowStockProductsFromSupabase(),
-      getRecentSaleIdsFromSupabase(30),
+      getTodaySalesSummaryFromSupabase(supabaseClient),
+      getLowStockProductsFromSupabase(supabaseClient),
+      getRecentSaleIdsFromSupabase(supabaseClient, 30),
     ]);
-    const recentSaleItems = await getRecentSaleItemsFromSupabase(recentSaleIds);
+    const recentSaleItems = await getRecentSaleItemsFromSupabase(supabaseClient, recentSaleIds);
     const topSellingItems = computeTopSellingItems(recentSaleItems);
     return buildContextString(saleSummary, lowStockProducts, topSellingItems);
   } catch {

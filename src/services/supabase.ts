@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 const fallbackSupabaseUrl = "https://placeholder.supabase.co";
 const fallbackSupabaseAnonKey = "placeholder-anon-key";
@@ -26,7 +26,29 @@ export function isSupabaseConfigured(): boolean {
   );
 }
 
-export const supabase = createClient(
-  getSupabaseUrl(),
-  getSupabaseAnonKey()
-);
+/** Returns a browser Supabase client with session persistence enabled. */
+export const supabase = createClient(getSupabaseUrl(), getSupabaseAnonKey(), {
+  auth: {
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+    persistSession: true,
+  },
+});
+
+/** Returns a request-scoped Supabase client that forwards a caller access token when provided. */
+export function createSupabaseServerClient(accessToken?: string): SupabaseClient {
+  return createClient(getSupabaseUrl(), getSupabaseAnonKey(), {
+    auth: {
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+      persistSession: false,
+    },
+    global: accessToken
+      ? {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      : undefined,
+  });
+}
