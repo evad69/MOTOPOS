@@ -27,6 +27,7 @@ function createFormValuesFromProduct(product: Product): ProductFormValues {
     costPrice: product.cost_price !== undefined ? String(product.cost_price) : "",
     stockQty: String(product.stock_qty),
     lowStockThreshold: String(product.low_stock_threshold),
+    imageUrl: product.image_url ?? "",
   };
 }
 
@@ -49,6 +50,7 @@ function buildProductChanges(
     cost_price: toOptionalNumber(formValues.costPrice),
     stock_qty: Number(formValues.stockQty),
     low_stock_threshold: Number(formValues.lowStockThreshold),
+    image_url: sanitizeText(formValues.imageUrl) || undefined,
   };
 }
 

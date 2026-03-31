@@ -32,7 +32,7 @@ function buildProductPayload(
     cost_price: toOptionalNumber(formValues.costPrice),
     stock_qty: Number(formValues.stockQty),
     low_stock_threshold: Number(formValues.lowStockThreshold),
-    image_url: undefined,
+    image_url: sanitizeText(formValues.imageUrl) || undefined,
     is_active: 1,
   };
 }

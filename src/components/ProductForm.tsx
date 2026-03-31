@@ -1,4 +1,5 @@
-import type { FormEventHandler, ReactNode } from "react";
+import type { ChangeEvent, FormEventHandler, ReactNode } from "react";
+import { Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
 import { LAYOUT, RADIUS, SPACING } from "@/theme/spacing";
@@ -26,6 +27,7 @@ export interface ProductFormValues {
   costPrice: string;
   stockQty: string;
   lowStockThreshold: string;
+  imageUrl: string;
 }
 
 interface ProductFormProps {
@@ -68,7 +70,27 @@ export function createInitialProductFormValues(): ProductFormValues {
     costPrice: "",
     stockQty: "0",
     lowStockThreshold: "5",
+    imageUrl: "",
   };
+}
+
+/** Reads a selected product image file into a data URL for local persistence. */
+async function readProductImageFile(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        resolve(reader.result);
+        return;
+      }
+
+      reject(new Error("Unable to read the selected image."));
+    };
+
+    reader.onerror = () => reject(new Error("Unable to read the selected image."));
+    reader.readAsDataURL(file);
+  });
 }
 
 /** Wraps a form label and control in consistent vertical spacing. */
@@ -135,6 +157,94 @@ function SelectField({ id, label, value, options, onChange }: SelectFieldProps) 
   );
 }
 
+/** Renders the shared image preview and upload controls for product forms. */
+function ProductImageField({
+  imageUrl,
+  onChange,
+}: {
+  imageUrl: string;
+  onChange: (value: string) => void;
+}) {
+  async function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+
+    if (!file || !file.type.startsWith("image/")) {
+      return;
+    }
+
+    try {
+      const nextImageUrl = await readProductImageFile(file);
+      onChange(nextImageUrl);
+    } catch {
+      // Keep the form stable if the browser cannot read the selected file.
+    }
+  }
+
+  return (
+    <div style={{ gridColumn: "1 / -1" }}>
+      <span
+        className="mb-1 block text-text-secondary"
+        style={{ fontSize: fontSizes.caption }}
+      >
+        Product Image
+      </span>
+      <div className="flex flex-col" style={{ gap: SPACING.md }}>
+        <div
+          className="overflow-hidden border border-[var(--border)] bg-bg-primary"
+          style={{ borderRadius: RADIUS.md }}
+        >
+          <div
+            className="flex items-center justify-center bg-bg-surface text-text-secondary"
+            style={{ aspectRatio: "4 / 3" }}
+          >
+            {imageUrl ? (
+              <img
+                alt="Product preview"
+                className="h-full w-full object-cover"
+                src={imageUrl}
+              />
+            ) : (
+              <div className="flex flex-col items-center justify-center" style={{ gap: SPACING.sm }}>
+                <ImageIcon aria-hidden="true" size={28} />
+                <span style={{ fontSize: fontSizes.caption }}>No image selected</span>
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="flex flex-col sm:flex-row" style={{ gap: SPACING.md }}>
+          <label
+            className="inline-flex cursor-pointer items-center justify-center border border-[var(--border)] bg-bg-primary text-text-primary transition-colors duration-200 hover:bg-bg-surface focus-within:ring-2 focus-within:ring-accent"
+            htmlFor="product-image"
+            style={{
+              minHeight: LAYOUT.minClickTarget,
+              borderRadius: RADIUS.md,
+              paddingInline: SPACING.lg,
+              paddingBlock: SPACING.sm,
+              fontSize: fontSizes.body,
+              fontWeight: fontWeights.semibold,
+            }}
+          >
+            {imageUrl ? "Replace Image" : "Upload Image"}
+          </label>
+          <input
+            accept="image/*"
+            className="sr-only"
+            id="product-image"
+            onChange={handleFileChange}
+            type="file"
+          />
+          {imageUrl ? (
+            <Button onClick={() => onChange("")} type="button" variant="secondary">
+              Remove Image
+            </Button>
+          ) : null}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /** Renders the shared add/edit product form fields and action buttons. */
 export function ProductForm({
   formValues,
@@ -163,6 +273,10 @@ export function ProductForm({
           <TextField id="cost-price" label="Cost Price" onChange={(value) => onFieldChange("costPrice", value)} type="number" value={formValues.costPrice} />
           <TextField id="stock-qty" label="Stock Qty" onChange={(value) => onFieldChange("stockQty", value)} type="number" value={formValues.stockQty} />
           <TextField id="low-stock-threshold" label="Low Stock Threshold" onChange={(value) => onFieldChange("lowStockThreshold", value)} type="number" value={formValues.lowStockThreshold} />
+          <ProductImageField
+            imageUrl={formValues.imageUrl}
+            onChange={(value) => onFieldChange("imageUrl", value)}
+          />
         </div>
         {errorMessage ? (
           <p className="text-danger" style={{ fontSize: fontSizes.body, fontWeight: fontWeights.medium }}>

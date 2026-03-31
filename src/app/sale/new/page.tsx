@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Image as ImageIcon } from "lucide-react";
 import { BarcodeScannerDialog } from "@/components/BarcodeScannerDialog";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
@@ -326,38 +327,72 @@ function ChargeButtonContent({
   return hasItems ? `Charge ${formatCurrency(cartTotal)}` : "Add items to charge";
 }
 
-/** Renders a product card with stock, price, and add-to-cart action. */
+/** Renders the product image or a neutral placeholder for the sale grid. */
+function SaleProductImage({
+  imageUrl,
+  productName,
+}: {
+  imageUrl?: string;
+  productName: string;
+}) {
+  return (
+    <div
+      className="overflow-hidden border border-[var(--border)] bg-bg-primary"
+      style={{ borderRadius: RADIUS.md }}
+    >
+      <div
+        className="flex items-center justify-center bg-bg-surface text-text-secondary"
+        style={{ aspectRatio: "1 / 1" }}
+      >
+        {imageUrl ? (
+          <img
+            alt={productName}
+            className="h-full w-full object-cover"
+            src={imageUrl}
+          />
+        ) : (
+          <ImageIcon aria-hidden="true" size={24} />
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** Renders a product card with image, stock, price, and add-to-cart behavior. */
 function SaleProductCard({ product, onAddToCart }: SaleProductCardProps) {
   const isOutOfStock = product.stock_qty === 0;
 
   return (
-    <Card className="h-full">
-      <div className="flex h-full flex-col justify-between" style={{ gap: SPACING.lg }}>
-        <div className="flex flex-col" style={{ gap: SPACING.sm }}>
-          <div className="flex items-start justify-between" style={{ gap: SPACING.md }}>
-            <div>
-              <p className="text-text-primary" style={{ fontSize: fontSizes.title, fontWeight: fontWeights.semibold }}>
+    <Card className="h-full overflow-hidden" style={{ padding: 0 }}>
+      <button
+        aria-label={isOutOfStock ? `${product.name} is out of stock` : `Add ${product.name} to cart`}
+        className="h-full w-full bg-transparent text-left transition-colors duration-200 hover:bg-bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:cursor-not-allowed disabled:opacity-60"
+        disabled={isOutOfStock}
+        onClick={() => onAddToCart(product)}
+        style={{ padding: SPACING.md }}
+        type="button"
+      >
+        <div className="flex h-full flex-col" style={{ gap: SPACING.md }}>
+          <SaleProductImage imageUrl={product.image_url} productName={product.name} />
+          <div className="flex flex-1 flex-col justify-between" style={{ gap: SPACING.sm }}>
+            <div className="flex flex-col" style={{ gap: SPACING.xs }}>
+              <p
+                className="text-text-primary"
+                style={{ fontSize: fontSizes.body, fontWeight: fontWeights.semibold }}
+              >
                 {product.name}
               </p>
-              <p className="text-text-secondary" style={{ fontSize: fontSizes.body }}>
-                {product.brand || "No brand"}
+              <p
+                className="text-text-primary"
+                style={{ fontSize: fontSizes.price, fontWeight: fontWeights.semibold }}
+              >
+                {formatCurrency(product.selling_price)}
               </p>
             </div>
-            <span className="text-text-secondary" style={{ fontSize: fontSizes.caption }}>
-              {product.sku}
-            </span>
-          </div>
-          <div className="flex items-center justify-between" style={{ gap: SPACING.md }}>
             <ProductStockLabel stockQty={product.stock_qty} />
-            <span className="text-text-primary" style={{ fontSize: fontSizes.price, fontWeight: fontWeights.semibold }}>
-              {formatCurrency(product.selling_price)}
-            </span>
           </div>
         </div>
-        <Button disabled={isOutOfStock} onClick={() => onAddToCart(product)}>
-          + Add
-        </Button>
-      </div>
+      </button>
     </Card>
   );
 }
@@ -535,7 +570,10 @@ function ProductBrowserPanel({
   return (
     <div
       className="grid"
-      style={{ gap: SPACING.lg, gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))" }}
+      style={{
+        gap: SPACING.md,
+        gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
+      }}
     >
       {products.map((product) => (
         <SaleProductCard key={product.id} onAddToCart={onAddToCart} product={product} />
