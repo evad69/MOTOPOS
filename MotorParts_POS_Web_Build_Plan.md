@@ -71,7 +71,7 @@ Phase 8  — Sale History                     [x] 3/3 steps complete
 Phase 9  — Supabase Cloud Sync              [x] 4/4 steps complete
 Phase 10 — AI Assistant                     [x] 5/5 steps complete
 Phase 11 — Barcode Scanner                  [x] 2/2 steps complete
-Phase 12 — PWA & Vercel Deployment          [ ] 0/3 steps complete
+Phase 12 — PWA & Vercel Deployment          [ ] 1/3 steps complete
 Phase 13 — Polish & QA                      [ ] 0/4 steps complete
 ```
 
@@ -1817,7 +1817,7 @@ git commit --allow-empty -m "milestone(phase-11): barcode scanner implemented an
 
 ### Step 12.1 — Configure PWA with next-pwa
 
-- [ ] **Task:** Add service worker support for offline app shell caching.
+- [x] **Task:** Add service worker support for offline app shell caching.
 
 Configure `next-pwa` in `next.config.ts`:
 

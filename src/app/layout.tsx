@@ -6,6 +6,7 @@ import "../styles/globals.css";
 export const metadata: Metadata = {
   title: "MotorParts POS",
   description: "Motorcycle parts shop management web app",
+  manifest: "/manifest.json",
 };
 
 /** Provides the root HTML shell for the application. */
