@@ -1,7 +1,6 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
 import { CartItem, Product } from "@/database/db";
 import { useSync } from "@/hooks/useSync";
 
@@ -153,12 +152,7 @@ export function AppProvider({ children }: AppProviderProps) {
   const syncState = useSync();
   const contextValue = createContextValue(isDarkMode, toggleDarkMode, cartState, syncState);
 
-  return (
-    <AppContext.Provider value={contextValue}>
-      <ServiceWorkerRegistration />
-      {children}
-    </AppContext.Provider>
-  );
+  return <AppContext.Provider value={contextValue}>{children}</AppContext.Provider>;
 }
 
 /** Returns theme and cart state. Must be used inside AppProvider. */
