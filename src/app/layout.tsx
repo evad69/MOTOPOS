@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { AppProvider } from "@/context/AppContext";
-import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
 import { Sidebar } from "@/components/Sidebar";
 import "../styles/globals.css";
 
@@ -20,7 +19,6 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className="bg-bg-primary text-text-primary">
         <AppProvider>
-          <ServiceWorkerRegistration />
           <div className="flex min-h-screen overflow-hidden bg-bg-primary text-text-primary">
             <Sidebar />
             <main className="flex-1 overflow-y-auto">{children}</main>
