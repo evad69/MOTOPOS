@@ -25,6 +25,8 @@ interface TopSellingItem {
   totalSold: number;
 }
 
+const defaultGeminiModelName = "gemini-2.5-flash";
+
 /** Returns today's ISO date range for Supabase datetime filtering. */
 function getTodayDateRange(): { startOfToday: string; endOfToday: string } {
   const now = new Date();
@@ -205,7 +207,7 @@ function buildSystemPrompt(contextString: string): string {
 async function createGenerativeModel(apiKey: string) {
   const { GoogleGenerativeAI } = await import("@google/generative-ai");
   const googleGenerativeAI = new GoogleGenerativeAI(apiKey);
-  return googleGenerativeAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  return googleGenerativeAI.getGenerativeModel({ model: defaultGeminiModelName });
 }
 
 /** Sends the user message and shop context to Gemini and returns the AI reply text. */

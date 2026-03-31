@@ -69,7 +69,7 @@ Phase 6  — New Sale & Checkout              [x] 5/5 steps complete
 Phase 7  — Dashboard                        [x] 4/4 steps complete
 Phase 8  — Sale History                     [x] 3/3 steps complete
 Phase 9  — Supabase Cloud Sync              [x] 4/4 steps complete
-Phase 10 — AI Assistant                     [ ] 3/5 steps complete
+Phase 10 — AI Assistant                     [ ] 4/5 steps complete
 Phase 11 — Barcode Scanner                  [ ] 0/2 steps complete
 Phase 12 — PWA & Vercel Deployment          [ ] 0/3 steps complete
 Phase 13 — Polish & QA                      [ ] 0/4 steps complete
@@ -1710,7 +1710,7 @@ git commit -m "feat(ai): implement AI assistant chat page with bubbles and quick
 
 ### Step 10.4 — Add the opening AI greeting
 
-- [ ] **Task:** Auto-send a greeting when the AI page first loads.
+- [x] **Task:** Auto-send a greeting when the AI page first loads.
 
 ```tsx
 // In AIAssistantPage component

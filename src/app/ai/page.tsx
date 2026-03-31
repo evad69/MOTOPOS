@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useRef, useState } from "react";
-import { SendHorizonal } from "lucide-react";
+import { SendHorizontal } from "lucide-react";
 import { AIChatBubble } from "@/components/AIChatBubble";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
@@ -16,6 +16,9 @@ const quickPrompts = [
   "Top items this week",
   "Suggest reorder",
 ];
+
+const openingGreetingPrompt =
+  "Magandang araw! Please give me a short summary of today's sales and any low stock items.";
 
 interface PromptChipsProps {
   isLoading: boolean;
@@ -38,6 +41,23 @@ function useAutoScroll(messageCount: number, isLoading: boolean) {
   }, [messageCount, isLoading]);
 
   return messagesEndReference;
+}
+
+/** Sends the opening AI greeting exactly once when the page first loads. */
+function useOpeningGreeting(
+  messageCount: number,
+  sendMessage: (userMessage: string) => Promise<void>,
+) {
+  const hasRequestedGreetingReference = useRef(false);
+
+  useEffect(() => {
+    if (hasRequestedGreetingReference.current || messageCount > 0) {
+      return;
+    }
+
+    hasRequestedGreetingReference.current = true;
+    void sendMessage(openingGreetingPrompt);
+  }, [messageCount, sendMessage]);
 }
 
 /** Renders the navy assistant header inside the chat card. */
@@ -156,7 +176,7 @@ function ChatComposer({
         disabled={isLoading || !inputValue.trim()}
         type="submit"
       >
-        <SendHorizonal aria-hidden="true" size={18} />
+        <SendHorizontal aria-hidden="true" size={18} />
       </Button>
     </form>
   );
@@ -167,6 +187,7 @@ export default function AIPage() {
   const { messages, isLoading, errorMessage, sendMessage } = useAI();
   const [inputValue, setInputValue] = useState("");
   const messagesEndReference = useAutoScroll(messages.length, isLoading);
+  useOpeningGreeting(messages.length, sendMessage);
 
   async function handleSendMessage() {
     const trimmedInputValue = inputValue.trim();
