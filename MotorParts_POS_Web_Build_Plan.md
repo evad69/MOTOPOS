@@ -68,7 +68,7 @@ Phase 5  — Inventory Management             [x] 5/5 steps complete
 Phase 6  — New Sale & Checkout              [x] 5/5 steps complete
 Phase 7  — Dashboard                        [x] 4/4 steps complete
 Phase 8  — Sale History                     [x] 3/3 steps complete
-Phase 9  — Supabase Cloud Sync              [ ] 1/4 steps complete
+Phase 9  — Supabase Cloud Sync              [ ] 2/4 steps complete
 Phase 10 — AI Assistant                     [ ] 0/5 steps complete
 Phase 11 — Barcode Scanner                  [ ] 0/2 steps complete
 Phase 12 — PWA & Vercel Deployment          [ ] 0/3 steps complete
@@ -1531,7 +1531,7 @@ git commit -m "feat(sync): add Supabase client initialization"
 
 ### Step 9.2 — Implement the sync service
 
-- [ ] **Task:** Write the background sync function and register the online/offline event listener.
+- [x] **Task:** Write the background sync function and register the online/offline event listener.
 
 **`src/services/sync.ts`** — implement `syncPendingRecords()` and `registerSyncListener()` exactly as specified in PRD Section 6.2.
 
