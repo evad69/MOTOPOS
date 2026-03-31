@@ -8,6 +8,7 @@ import { Card } from "@/components/Card";
 import { ReceiptModal } from "@/components/ReceiptModal";
 import { TopBar } from "@/components/TopBar";
 import { useAppContext } from "@/context/AppContext";
+import { useAuth } from "@/context/AuthContext";
 import { CartItem, Product } from "@/database/db";
 import { getAllProducts, getProductBySku, searchProducts } from "@/database/products";
 import { completeSale } from "@/database/sales";
@@ -597,6 +598,7 @@ export default function NewSalePage() {
     removeItemFromCart,
     updateCartItemQuantity,
   } = useAppContext();
+  const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod>("cash");
   const [isProcessing, setIsProcessing] = useState(false);
@@ -661,9 +663,13 @@ export default function NewSalePage() {
     setCheckoutError(null);
 
     try {
+      if (!user?.id) {
+        throw new Error("Owner session is missing. Please sign in again.");
+      }
       const saleId = await completeSale(
         { paymentMethod: selectedPaymentMethod },
         cartItems,
+        user.id,
       );
       clearCart();
       setCompletedSaleId(saleId);

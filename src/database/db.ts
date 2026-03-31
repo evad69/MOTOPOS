@@ -4,6 +4,7 @@ export type ProductOptionKind = "category" | "unit";
 
 export interface Product {
   id: string;
+  owner_id: string;
   sku: string;
   name: string;
   brand?: string;
@@ -22,6 +23,7 @@ export interface Product {
 
 export interface Sale {
   id: string;
+  owner_id: string;
   sale_date: string;
   total_amount: number;
   discount_amount: number;
@@ -35,6 +37,7 @@ export interface Sale {
 
 export interface SaleItem {
   id: string;
+  owner_id: string;
   sale_id: string;
   product_id: string;
   product_name: string;
@@ -106,6 +109,14 @@ class MotorPartsDatabase extends Dexie {
       products: "id, sku, name, category, brand, is_active, stock_qty, synced",
       sales: "id, sale_date, synced",
       sale_items: "id, sale_id, product_id",
+      suppliers: "id, name",
+      product_options: "id, kind, name, is_active",
+    });
+
+    this.version(3).stores({
+      products: "id, owner_id, sku, name, category, brand, is_active, stock_qty, synced",
+      sales: "id, owner_id, sale_date, synced",
+      sale_items: "id, owner_id, sale_id, product_id",
       suppliers: "id, name",
       product_options: "id, kind, name, is_active",
     });

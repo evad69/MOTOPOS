@@ -29,10 +29,22 @@ function shouldKeepLocalChange(
   );
 }
 
+/** Returns the current authenticated owner id or null when unavailable. */
+async function getCurrentOwnerId(): Promise<string | null> {
+  const { data, error } = await supabase.auth.getUser();
+  if (error) {
+    console.error("Unable to read the current auth user.", error);
+    return null;
+  }
+
+  return data.user?.id ?? null;
+}
+
 /** Reads every row from a Supabase table, handling pagination beyond the default page size. */
 async function fetchAllRemoteRows<RowType>(
   tableName: "products" | "sales" | "sale_items",
   orderColumn: "updated_at" | "id",
+  ownerId: string,
 ): Promise<RowType[]> {
   const rows: RowType[] = [];
   let rangeStart = 0;
@@ -41,6 +53,7 @@ async function fetchAllRemoteRows<RowType>(
     const { data, error } = await supabase
       .from(tableName)
       .select("*")
+      .eq("owner_id", ownerId)
       .order(orderColumn, { ascending: true })
       .range(rangeStart, rangeStart + remotePageSize - 1);
 
@@ -60,9 +73,9 @@ async function fetchAllRemoteRows<RowType>(
 }
 
 /** Merges remote products into IndexedDB while preserving any newer local unsynced edits. */
-async function pullRemoteProducts(): Promise<void> {
+async function pullRemoteProducts(ownerId: string): Promise<void> {
   const [remoteProducts, localProducts] = await Promise.all([
-    fetchAllRemoteRows<Product>("products", "updated_at"),
+    fetchAllRemoteRows<Product>("products", "updated_at", ownerId),
     db.products.toArray(),
   ]);
   const localProductMap = new Map(localProducts.map((product) => [product.id, product]));
@@ -89,9 +102,9 @@ async function pullRemoteProducts(): Promise<void> {
 }
 
 /** Merges remote sales into IndexedDB while preserving any newer local unsynced edits. */
-async function pullRemoteSales(): Promise<void> {
+async function pullRemoteSales(ownerId: string): Promise<void> {
   const [remoteSales, localSales] = await Promise.all([
-    fetchAllRemoteRows<Sale>("sales", "updated_at"),
+    fetchAllRemoteRows<Sale>("sales", "updated_at", ownerId),
     db.sales.toArray(),
   ]);
   const localSaleMap = new Map(localSales.map((saleRecord) => [saleRecord.id, saleRecord]));
@@ -118,9 +131,9 @@ async function pullRemoteSales(): Promise<void> {
 }
 
 /** Mirrors remote sale items into IndexedDB after the parent sales have been pushed. */
-async function pullRemoteSaleItems(): Promise<void> {
+async function pullRemoteSaleItems(ownerId: string): Promise<void> {
   const [remoteSaleItems, localSaleItems] = await Promise.all([
-    fetchAllRemoteRows<SaleItem>("sale_items", "id"),
+    fetchAllRemoteRows<SaleItem>("sale_items", "id", ownerId),
     db.sale_items.toArray(),
   ]);
   const remoteSaleItemIds = new Set(remoteSaleItems.map((saleItem) => saleItem.id));
@@ -134,9 +147,60 @@ async function pullRemoteSaleItems(): Promise<void> {
   }
 }
 
+/** Ensures a product record has the correct owner id. */
+async function ensureProductOwner(
+  product: Product,
+  ownerId: string,
+): Promise<Product> {
+  if (product.owner_id === ownerId) {
+    return product;
+  }
+
+  const nextProduct = { ...product, owner_id: ownerId };
+  await db.products.update(product.id, { owner_id: ownerId });
+  return nextProduct;
+}
+
+/** Ensures a sale record has the correct owner id. */
+async function ensureSaleOwner(
+  saleRecord: Sale,
+  ownerId: string,
+): Promise<Sale> {
+  if (saleRecord.owner_id === ownerId) {
+    return saleRecord;
+  }
+
+  const nextSale = { ...saleRecord, owner_id: ownerId };
+  await db.sales.update(saleRecord.id, { owner_id: ownerId });
+  return nextSale;
+}
+
+/** Ensures a batch of sale items have the correct owner id. */
+async function ensureSaleItemOwners(
+  saleItems: SaleItem[],
+  ownerId: string,
+): Promise<SaleItem[]> {
+  let shouldUpdate = false;
+  const nextItems = saleItems.map((saleItem) => {
+    if (saleItem.owner_id === ownerId) {
+      return saleItem;
+    }
+
+    shouldUpdate = true;
+    return { ...saleItem, owner_id: ownerId };
+  });
+
+  if (shouldUpdate) {
+    await db.sale_items.bulkPut(nextItems);
+  }
+
+  return nextItems;
+}
+
 /** Pushes a single unsynced product record to Supabase. */
-async function syncProductRecord(product: Product): Promise<void> {
-  const { error } = await supabase.from("products").upsert(product, { onConflict: "id" });
+async function syncProductRecord(product: Product, ownerId: string): Promise<void> {
+  const safeProduct = await ensureProductOwner(product, ownerId);
+  const { error } = await supabase.from("products").upsert(safeProduct, { onConflict: "id" });
   if (error) {
     throw error;
   }
@@ -145,42 +209,44 @@ async function syncProductRecord(product: Product): Promise<void> {
 }
 
 /** Pushes all line items for a synced sale to Supabase. */
-async function syncSaleItems(saleId: string): Promise<void> {
+async function syncSaleItems(saleId: string, ownerId: string): Promise<void> {
   const saleItems = await db.sale_items.where("sale_id").equals(saleId).toArray();
   if (!saleItems.length) {
     return;
   }
 
-  const { error } = await supabase.from("sale_items").upsert(saleItems, { onConflict: "id" });
+  const safeSaleItems = await ensureSaleItemOwners(saleItems, ownerId);
+  const { error } = await supabase.from("sale_items").upsert(safeSaleItems, { onConflict: "id" });
   if (error) {
     throw error;
   }
 }
 
 /** Pushes a single unsynced sale record and its line items to Supabase. */
-async function syncSaleRecord(saleRecord: Sale): Promise<void> {
-  const { error } = await supabase.from("sales").upsert(saleRecord, { onConflict: "id" });
+async function syncSaleRecord(saleRecord: Sale, ownerId: string): Promise<void> {
+  const safeSaleRecord = await ensureSaleOwner(saleRecord, ownerId);
+  const { error } = await supabase.from("sales").upsert(safeSaleRecord, { onConflict: "id" });
   if (error) {
     throw error;
   }
 
-  await syncSaleItems(saleRecord.id);
+  await syncSaleItems(safeSaleRecord.id, ownerId);
   await db.sales.update(saleRecord.id, { synced: 1 });
 }
 
 /** Pushes all unsynced products to Supabase and marks them synced locally. */
-async function syncUnsyncedProducts(): Promise<void> {
+async function syncUnsyncedProducts(ownerId: string): Promise<void> {
   const unsyncedProducts = await db.products.where("synced").equals(0).toArray();
   for (const product of unsyncedProducts) {
-    await syncProductRecord(product);
+    await syncProductRecord(product, ownerId);
   }
 }
 
 /** Pushes all unsynced sales to Supabase and marks them synced locally. */
-async function syncUnsyncedSales(): Promise<void> {
+async function syncUnsyncedSales(ownerId: string): Promise<void> {
   const unsyncedSales = await db.sales.where("synced").equals(0).toArray();
   for (const saleRecord of unsyncedSales) {
-    await syncSaleRecord(saleRecord);
+    await syncSaleRecord(saleRecord, ownerId);
   }
 }
 
@@ -194,11 +260,16 @@ async function runOnlineSync(): Promise<void> {
     return;
   }
 
-  await syncUnsyncedProducts();
-  await syncUnsyncedSales();
-  await pullRemoteProducts();
-  await pullRemoteSales();
-  await pullRemoteSaleItems();
+  const ownerId = await getCurrentOwnerId();
+  if (!ownerId) {
+    return;
+  }
+
+  await syncUnsyncedProducts(ownerId);
+  await syncUnsyncedSales(ownerId);
+  await pullRemoteProducts(ownerId);
+  await pullRemoteSales(ownerId);
+  await pullRemoteSaleItems(ownerId);
 }
 
 /** Listen for browser connectivity events and trigger sync immediately on reconnect. */

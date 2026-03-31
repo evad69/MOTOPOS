@@ -94,6 +94,7 @@ export async function getTopSellingProducts(
 
 /** Creates the sale record payload that will be persisted in the checkout transaction. */
 function buildSaleRecord(
+  ownerId: string,
   saleId: string,
   saleData: SaleInput,
   cartItems: CartItem[],
@@ -106,6 +107,7 @@ function buildSaleRecord(
 
   return {
     id: saleId,
+    owner_id: ownerId,
     sale_date: currentTimestamp,
     total_amount: subtotalAmount - discountAmount,
     discount_amount: discountAmount,
@@ -121,9 +123,14 @@ function buildSaleRecord(
 }
 
 /** Creates a sale item record payload for a single cart item. */
-function buildSaleItemRecord(saleId: string, cartItem: CartItem): SaleItem {
+function buildSaleItemRecord(
+  ownerId: string,
+  saleId: string,
+  cartItem: CartItem,
+): SaleItem {
   return {
     id: `${saleId}-${cartItem.productId}`,
+    owner_id: ownerId,
     sale_id: saleId,
     product_id: cartItem.productId,
     product_name: sanitizeText(cartItem.productName),
@@ -137,19 +144,23 @@ function buildSaleItemRecord(saleId: string, cartItem: CartItem): SaleItem {
 export async function completeSale(
   saleData: SaleInput,
   cartItems: CartItem[],
+  ownerId: string,
 ): Promise<string> {
   if (!cartItems.length) {
     throw new Error("Cannot complete a sale with an empty cart.");
   }
+  if (!ownerId) {
+    throw new Error("Owner session is missing. Please sign in again.");
+  }
 
   const currentTimestamp = new Date().toISOString();
   const saleId = generateId();
-  const saleRecord = buildSaleRecord(saleId, saleData, cartItems, currentTimestamp);
+  const saleRecord = buildSaleRecord(ownerId, saleId, saleData, cartItems, currentTimestamp);
 
   await db.transaction("rw", db.sales, db.sale_items, db.products, async () => {
     await db.sales.add(saleRecord);
     for (const cartItem of cartItems) {
-      await db.sale_items.add(buildSaleItemRecord(saleId, cartItem));
+      await db.sale_items.add(buildSaleItemRecord(ownerId, saleId, cartItem));
       await deductStock(cartItem.productId, cartItem.quantity);
     }
   });

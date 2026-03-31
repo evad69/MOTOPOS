@@ -8,6 +8,7 @@ import {
   createInitialProductFormValues,
 } from "@/components/ProductForm";
 import { TopBar } from "@/components/TopBar";
+import { useAuth } from "@/context/AuthContext";
 import { Product } from "@/database/db";
 import { insertProduct } from "@/database/products";
 import { useProductOptions } from "@/hooks/useProductOptions";
@@ -22,8 +23,10 @@ function toOptionalNumber(value: string): number | undefined {
 /** Converts add-product form values into the database payload. */
 function buildProductPayload(
   formValues: ProductFormValues,
+  ownerId: string,
 ): Omit<Product, "id" | "created_at" | "updated_at" | "synced"> {
   return {
+    owner_id: ownerId,
     sku: sanitizeText(formValues.sku),
     name: sanitizeText(formValues.name),
     brand: sanitizeText(formValues.brand) || undefined,
@@ -41,6 +44,7 @@ function buildProductPayload(
 /** Renders the add product page with validation and IndexedDB save behavior. */
 export default function NewInventoryItemPage() {
   const router = useRouter();
+  const { user } = useAuth();
   const [formValues, setFormValues] = useState(createInitialProductFormValues());
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -84,11 +88,15 @@ export default function NewInventoryItemPage() {
       setErrorMessage(validationMessage);
       return;
     }
+    if (!user?.id) {
+      setErrorMessage("Owner session is missing. Please sign in again.");
+      return;
+    }
 
     setIsSaving(true);
     setErrorMessage(null);
     try {
-      await insertProduct(buildProductPayload(formValues));
+      await insertProduct(buildProductPayload(formValues, user.id));
       router.push("/inventory");
     } catch {
       setErrorMessage("Unable to save the product right now.");
