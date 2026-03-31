@@ -17,8 +17,7 @@ const quickPrompts = [
   "Suggest reorder",
 ];
 
-const openingGreetingPrompt =
-  "Magandang araw! Please give me a short summary of today's sales and any low stock items.";
+const openingGreetingPrompt = "Hello! What can I do for you?";
 
 interface PromptChipsProps {
   isLoading: boolean;
@@ -44,20 +43,26 @@ function useAutoScroll(messageCount: number, isLoading: boolean) {
 }
 
 /** Sends the opening AI greeting exactly once when the page first loads. */
-function useOpeningGreeting(
-  messageCount: number,
-  loadGreeting: (promptMessage: string) => Promise<void>,
-) {
-  const hasRequestedGreetingReference = useRef(false);
+function useOpeningGreeting(messageCount: number) {
+  const [hasGreeting, setHasGreeting] = useState(false);
 
   useEffect(() => {
-    if (hasRequestedGreetingReference.current || messageCount > 0) {
-      return;
+    if (messageCount > 0) {
+      setHasGreeting(true);
     }
+  }, [messageCount]);
 
-    hasRequestedGreetingReference.current = true;
-    void loadGreeting(openingGreetingPrompt);
-  }, [loadGreeting, messageCount]);
+  if (hasGreeting) {
+    return null;
+  }
+
+  return (
+    <AIChatBubble
+      content={openingGreetingPrompt}
+      role="ai"
+      timestamp={new Date().toISOString()}
+    />
+  );
 }
 
 /** Renders the navy assistant header inside the chat card. */
@@ -184,10 +189,10 @@ function ChatComposer({
 
 /** Renders the fully wired AI assistant chat page with prompts, bubbles, and composer. */
 export default function AIPage() {
-  const { messages, isLoading, errorMessage, sendMessage, loadGreeting } = useAI();
+  const { messages, isLoading, errorMessage, sendMessage } = useAI();
   const [inputValue, setInputValue] = useState("");
   const messagesEndReference = useAutoScroll(messages.length, isLoading);
-  useOpeningGreeting(messages.length, loadGreeting);
+  const greetingBubble = useOpeningGreeting(messages.length);
 
   async function handleSendMessage() {
     const trimmedInputValue = inputValue.trim();
@@ -206,6 +211,7 @@ export default function AIPage() {
         <Card className="flex flex-1 flex-col overflow-hidden">
           <AssistantHeader />
           <MessageList isLoading={isLoading} messages={messages} messagesEndReference={messagesEndReference} />
+          {greetingBubble}
           <div className="border-t border-[var(--border)]" style={{ padding: SPACING.xl }}>
             <div className="flex flex-col gap-4">
               <ErrorBanner errorMessage={errorMessage} />

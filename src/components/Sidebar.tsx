@@ -50,8 +50,8 @@ function getSidebarLinkStyle(isMobile = false): CSSProperties {
   return {
     minHeight: LAYOUT.minClickTarget,
     borderRadius: RADIUS.md,
-    paddingInline: isMobile ? SPACING.lg : SPACING.md,
-    paddingBlock: SPACING.sm,
+    paddingInline: isMobile ? SPACING.lg : undefined,
+    paddingBlock: isMobile ? SPACING.sm : undefined,
     fontSize: fontSizes.body,
     fontWeight: fontWeights.medium,
   };
@@ -60,12 +60,12 @@ function getSidebarLinkStyle(isMobile = false): CSSProperties {
 /** Returns the shared classes used by desktop and mobile navigation links. */
 function getNavigationLinkClassName(isActive: boolean, isMobile = false): string {
   return [
-    "flex items-center gap-3 transition-colors duration-200",
+    "flex w-full items-center transition-all duration-200",
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
     "focus-visible:ring-offset-2 focus-visible:ring-offset-accent-navy",
     isMobile
-      ? "justify-start text-white/80 hover:bg-white/8 hover:text-white"
-      : "justify-center text-white/60 hover:bg-white/5 hover:text-white lg:justify-start",
+      ? "justify-start gap-3 text-white/80 hover:bg-white/8 hover:text-white"
+      : "justify-center gap-0 px-0 py-2 text-white/60 hover:bg-white/5 hover:text-white md:group-hover:justify-start md:group-hover:gap-3 md:group-hover:px-3",
     isActive ? "bg-white/10 text-white" : undefined,
   ]
     .filter(Boolean)
@@ -131,13 +131,18 @@ export function Sidebar() {
   return (
     <>
       <aside
-        className="hidden md:flex md:w-[var(--sidebar-collapsed-width)] md:flex-col md:bg-accent-navy lg:w-[var(--sidebar-width)]"
+        className="group hidden md:flex md:w-[var(--sidebar-collapsed-width)] md:flex-col md:bg-accent-navy md:transition-[width] md:duration-200 md:hover:w-[var(--sidebar-width)] md:overflow-hidden"
         style={getSidebarStyle()}
       >
         <div className="border-b border-white/10 px-3 py-4 text-white">
-          <div className="truncate text-sm font-semibold lg:text-base">MotoPOS</div>
-          <div className="mt-1 hidden text-xs text-white/60 lg:block">
-            MotorParts POS
+          <div className="flex items-center justify-center md:group-hover:hidden">
+            <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-white/10 text-sm font-semibold">
+              M
+            </div>
+          </div>
+          <div className="hidden md:group-hover:block md:transition-opacity md:duration-200">
+            <div className="truncate text-sm font-semibold">MotoPOS</div>
+            <div className="mt-1 text-xs text-white/60">MotorParts POS</div>
           </div>
         </div>
         <nav className="flex flex-1 flex-col gap-2 p-2">
@@ -154,24 +159,26 @@ export function Sidebar() {
                 style={getSidebarLinkStyle()}
               >
                 <Icon aria-hidden="true" size={18} />
-                <span className="hidden lg:inline">{item.label}</span>
+                <span className="hidden md:inline md:max-w-0 md:translate-x-2 md:opacity-0 md:overflow-hidden md:transition-all md:duration-200 md:group-hover:max-w-[160px] md:group-hover:translate-x-0 md:group-hover:opacity-100">
+                  {item.label}
+                </span>
               </Link>
             );
           })}
         </nav>
         <div className="border-t border-white/10 p-2">
-          <div className="hidden px-3 pb-3 text-xs lg:block">
+          <div className="hidden px-3 pb-3 text-xs md:block md:opacity-0 md:group-hover:opacity-100 md:transition-opacity md:duration-200">
             <div className="truncate font-medium text-white/80">{user?.email ?? "Signed in"}</div>
             <div className="mt-1 text-white/45">Protected shop session</div>
           </div>
           <button
-            className="flex w-full items-center gap-3 rounded-[10px] px-3 py-3 text-left text-white/70 transition-colors duration-200 hover:bg-white/8 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex w-full items-center justify-center gap-0 rounded-[10px] px-0 py-3 text-left text-white/70 transition-all duration-200 hover:bg-white/8 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 disabled:cursor-not-allowed disabled:opacity-60 md:group-hover:justify-start md:group-hover:gap-3 md:group-hover:px-3"
             disabled={isSigningOut}
             onClick={() => void handleSignOut()}
             type="button"
           >
             <LogOut aria-hidden="true" size={18} />
-            <span className="hidden lg:inline">
+            <span className="hidden md:inline md:max-w-0 md:translate-x-2 md:opacity-0 md:overflow-hidden md:transition-all md:duration-200 md:group-hover:max-w-[160px] md:group-hover:translate-x-0 md:group-hover:opacity-100">
               {isSigningOut ? "Signing Out..." : "Sign Out"}
             </span>
           </button>

@@ -95,7 +95,17 @@ async function readProductImageFile(file: File): Promise<string> {
 }
 
 /** Wraps a form label and control in consistent vertical spacing. */
-function FieldGroup({ label, htmlFor, children }: { label: string; htmlFor: string; children: ReactNode }) {
+function FieldGroup({
+  label,
+  htmlFor,
+  helper,
+  children,
+}: {
+  label: string;
+  htmlFor: string;
+  helper?: string;
+  children: ReactNode;
+}) {
   return (
     <label className="block" htmlFor={htmlFor}>
       <span
@@ -104,6 +114,11 @@ function FieldGroup({ label, htmlFor, children }: { label: string; htmlFor: stri
       >
         {label}
       </span>
+      {helper ? (
+        <span className="block text-text-secondary" style={{ marginBottom: SPACING.xs, fontSize: 11 }}>
+          {helper}
+        </span>
+      ) : null}
       {children}
     </label>
   );
@@ -256,7 +271,7 @@ function ManagedOptionField({
           Add {label}
         </Button>
       </div>
-      <div className="flex flex-wrap" style={{ gap: SPACING.sm }}>
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
         {options.map((optionName) => {
           const isSelected = optionName === value;
 
@@ -441,39 +456,60 @@ export function ProductForm({
   return (
     <Card>
       <form className="flex flex-col" onSubmit={onSubmit} style={{ gap: SPACING.lg }}>
-        <div
-          className="grid"
-          style={{ gap: SPACING.lg, gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))" }}
-        >
-          <TextField id="name" label="Name" onChange={(value) => onFieldChange("name", value)} value={formValues.name} />
-          <TextField id="brand" label="Brand" onChange={(value) => onFieldChange("brand", value)} value={formValues.brand} />
-          <TextField id="sku" label="SKU" onChange={(value) => onFieldChange("sku", value)} value={formValues.sku} />
-          <ManagedOptionField
-            id="category"
-            label="Category"
-            onAddOption={onAddCategory}
-            onChange={(value) => onFieldChange("category", value)}
-            onDeleteOption={onDeleteCategory}
-            options={categoryOptions}
-            value={formValues.category}
-          />
-          <ManagedOptionField
-            id="unit"
-            label="Unit"
-            onAddOption={onAddUnit}
-            onChange={(value) => onFieldChange("unit", value)}
-            onDeleteOption={onDeleteUnit}
-            options={unitOptions}
-            value={formValues.unit}
-          />
-          <TextField id="selling-price" label="Selling Price" onChange={(value) => onFieldChange("sellingPrice", value)} type="number" value={formValues.sellingPrice} />
-          <TextField id="cost-price" label="Cost Price" onChange={(value) => onFieldChange("costPrice", value)} type="number" value={formValues.costPrice} />
-          <TextField id="stock-qty" label="Stock Qty" onChange={(value) => onFieldChange("stockQty", value)} type="number" value={formValues.stockQty} />
-          <TextField id="low-stock-threshold" label="Low Stock Threshold" onChange={(value) => onFieldChange("lowStockThreshold", value)} type="number" value={formValues.lowStockThreshold} />
-          <ProductImageField
-            imageUrl={formValues.imageUrl}
-            onChange={(value) => onFieldChange("imageUrl", value)}
-          />
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,0.9fr)]">
+          <div className="flex flex-col" style={{ gap: SPACING.lg }}>
+            <div>
+              <p className="text-text-primary" style={{ fontSize: fontSizes.section, fontWeight: fontWeights.semibold }}>
+                Product details
+              </p>
+              <p className="text-text-secondary" style={{ fontSize: fontSizes.caption }}>
+                Capture the essentials first, then adjust categories and units on the right.
+              </p>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2">
+              <TextField id="name" label="Name" onChange={(value) => onFieldChange("name", value)} value={formValues.name} />
+              <TextField id="brand" label="Brand" onChange={(value) => onFieldChange("brand", value)} value={formValues.brand} />
+              <TextField id="sku" label="SKU" onChange={(value) => onFieldChange("sku", value)} value={formValues.sku} />
+            </div>
+            <div className="grid gap-4 md:grid-cols-2">
+              <TextField id="selling-price" label="Selling Price" onChange={(value) => onFieldChange("sellingPrice", value)} type="number" value={formValues.sellingPrice} />
+              <TextField id="cost-price" label="Cost Price" onChange={(value) => onFieldChange("costPrice", value)} type="number" value={formValues.costPrice} />
+              <TextField id="stock-qty" label="Stock Qty" onChange={(value) => onFieldChange("stockQty", value)} type="number" value={formValues.stockQty} />
+              <TextField id="low-stock-threshold" label="Low Stock Threshold" onChange={(value) => onFieldChange("lowStockThreshold", value)} type="number" value={formValues.lowStockThreshold} />
+            </div>
+            <ProductImageField
+              imageUrl={formValues.imageUrl}
+              onChange={(value) => onFieldChange("imageUrl", value)}
+            />
+          </div>
+          <div className="flex flex-col" style={{ gap: SPACING.lg }}>
+            <div>
+              <p className="text-text-primary" style={{ fontSize: fontSizes.section, fontWeight: fontWeights.semibold }}>
+                Catalog options
+              </p>
+              <p className="text-text-secondary" style={{ fontSize: fontSizes.caption }}>
+                Keep the pick lists tidy so staff can add items fast.
+              </p>
+            </div>
+            <ManagedOptionField
+              id="category"
+              label="Category"
+              onAddOption={onAddCategory}
+              onChange={(value) => onFieldChange("category", value)}
+              onDeleteOption={onDeleteCategory}
+              options={categoryOptions}
+              value={formValues.category}
+            />
+            <ManagedOptionField
+              id="unit"
+              label="Unit"
+              onAddOption={onAddUnit}
+              onChange={(value) => onFieldChange("unit", value)}
+              onDeleteOption={onDeleteUnit}
+              options={unitOptions}
+              value={formValues.unit}
+            />
+          </div>
         </div>
         {errorMessage ? (
           <p className="text-danger" style={{ fontSize: fontSizes.body, fontWeight: fontWeights.medium }}>

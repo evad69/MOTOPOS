@@ -181,6 +181,7 @@ export function AppProvider({ children }: AppProviderProps) {
   const mobileNavState = useMobileNavState();
   const cartState = useCartState();
   const syncState = useSync();
+  const isPwaEnabled = process.env.NEXT_PUBLIC_ENABLE_PWA === "true";
   const contextValue = createContextValue(
     isDarkMode,
     toggleDarkMode,
@@ -190,16 +191,34 @@ export function AppProvider({ children }: AppProviderProps) {
   );
 
   useEffect(() => {
-    if (process.env.NODE_ENV !== "production") {
-      return;
-    }
-
     if (!("serviceWorker" in navigator)) {
       return;
     }
 
+    const isLocalhost =
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1";
+
+    if (!isPwaEnabled || process.env.NODE_ENV !== "production" || isLocalhost) {
+      void navigator.serviceWorker.getRegistrations().then((registrations) => {
+        registrations.forEach((registration) => {
+          void registration.unregister();
+        });
+      });
+
+      if ("caches" in window) {
+        void caches.keys().then((cacheKeys) => {
+          cacheKeys.forEach((cacheKey) => {
+            void caches.delete(cacheKey);
+          });
+        });
+      }
+
+      return;
+    }
+
     void navigator.serviceWorker.register("/sw.js").catch(() => undefined);
-  }, []);
+  }, [isPwaEnabled]);
 
   return <AppContext.Provider value={contextValue}>{children}</AppContext.Provider>;
 }
