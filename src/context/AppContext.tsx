@@ -7,6 +7,10 @@ import { useSync } from "@/hooks/useSync";
 interface AppContextValue {
   isDarkMode: boolean;
   toggleDarkMode: () => void;
+  isMobileNavOpen: boolean;
+  openMobileNav: () => void;
+  closeMobileNav: () => void;
+  toggleMobileNav: () => void;
   cartItems: CartItem[];
   addItemToCart: (product: Product) => void;
   removeItemFromCart: (productId: string) => void;
@@ -96,6 +100,30 @@ function useDarkModeState() {
   return { isDarkMode, toggleDarkMode };
 }
 
+/** Returns the open/close state used by the mobile navigation drawer. */
+function useMobileNavState() {
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+
+  function openMobileNav() {
+    setIsMobileNavOpen(true);
+  }
+
+  function closeMobileNav() {
+    setIsMobileNavOpen(false);
+  }
+
+  function toggleMobileNav() {
+    setIsMobileNavOpen((previousValue) => !previousValue);
+  }
+
+  return {
+    isMobileNavOpen,
+    openMobileNav,
+    closeMobileNav,
+    toggleMobileNav,
+  };
+}
+
 /** Returns cart data and cart actions for the global application state. */
 function useCartState() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -134,12 +162,14 @@ function useCartState() {
 function createContextValue(
   isDarkMode: boolean,
   toggleDarkMode: () => void,
+  mobileNavState: ReturnType<typeof useMobileNavState>,
   cartState: ReturnType<typeof useCartState>,
   syncState: ReturnType<typeof useSync>,
 ): AppContextValue {
   return {
     isDarkMode,
     toggleDarkMode,
+    ...mobileNavState,
     ...cartState,
     ...syncState,
   };
@@ -148,9 +178,16 @@ function createContextValue(
 /** Provides global dark mode, cart state, and sync state to all child components. */
 export function AppProvider({ children }: AppProviderProps) {
   const { isDarkMode, toggleDarkMode } = useDarkModeState();
+  const mobileNavState = useMobileNavState();
   const cartState = useCartState();
   const syncState = useSync();
-  const contextValue = createContextValue(isDarkMode, toggleDarkMode, cartState, syncState);
+  const contextValue = createContextValue(
+    isDarkMode,
+    toggleDarkMode,
+    mobileNavState,
+    cartState,
+    syncState,
+  );
 
   useEffect(() => {
     if (process.env.NODE_ENV !== "production") {

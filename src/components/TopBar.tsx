@@ -1,6 +1,6 @@
 "use client";
 
-import { Moon, Sun } from "lucide-react";
+import { Menu, Moon, Sun } from "lucide-react";
 import { Button } from "@/components/Button";
 import { useAppContext } from "@/context/AppContext";
 import { RADIUS, LAYOUT, SPACING } from "@/theme/spacing";
@@ -41,7 +41,13 @@ function getSyncLabel(isPendingSync: boolean, isSyncing: boolean): string {
 
 /** Renders the top page bar with title, sync indicator, and theme toggle. */
 export function TopBar({ title }: TopBarProps) {
-  const { isDarkMode, toggleDarkMode, isSyncing, hasPendingSync } = useAppContext();
+  const {
+    isDarkMode,
+    toggleDarkMode,
+    isSyncing,
+    hasPendingSync,
+    toggleMobileNav,
+  } = useAppContext();
   const syncLabel = getSyncLabel(hasPendingSync, isSyncing);
 
   return (
@@ -53,20 +59,31 @@ export function TopBar({ title }: TopBarProps) {
         className="flex items-center justify-between gap-4"
         style={{ minHeight: LAYOUT.topBarHeight }}
       >
-        <h1
-          className="text-text-primary"
-          style={{ fontSize: fontSizes.title, fontWeight: fontWeights.semibold }}
-        >
-          {title}
-        </h1>
-        <div className="flex items-center gap-3">
+        <div className="flex min-w-0 items-center gap-3">
+          <Button
+            aria-label="Open navigation menu"
+            className="shrink-0 px-0 md:hidden"
+            onClick={toggleMobileNav}
+            style={{ width: LAYOUT.minClickTarget }}
+            variant="secondary"
+          >
+            <Menu aria-hidden="true" size={18} />
+          </Button>
+          <h1
+            className="truncate text-text-primary"
+            style={{ fontSize: fontSizes.title, fontWeight: fontWeights.semibold }}
+          >
+            {title}
+          </h1>
+        </div>
+        <div className="flex items-center gap-2 sm:gap-3">
           <div className="flex items-center gap-2 text-sm text-text-secondary">
             <span
               aria-hidden="true"
               className={getSyncDotClassName(hasPendingSync, isSyncing)}
               style={getSyncDotStyle()}
             />
-            <span>{syncLabel}</span>
+            <span className="hidden sm:inline">{syncLabel}</span>
           </div>
           <Button
             aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
@@ -75,7 +92,7 @@ export function TopBar({ title }: TopBarProps) {
             variant="secondary"
           >
             {isDarkMode ? <Sun aria-hidden="true" size={16} /> : <Moon aria-hidden="true" size={16} />}
-            <span>{isDarkMode ? "Light" : "Dark"}</span>
+            <span className="hidden sm:inline">{isDarkMode ? "Light" : "Dark"}</span>
           </Button>
         </div>
       </div>
